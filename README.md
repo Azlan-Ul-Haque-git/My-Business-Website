@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ✦ Azis Digital Hub
 
 **Premium Digital Services Website — Jabalpur, MP**
@@ -159,3 +160,6 @@ if (pass !== 'YOUR_PASSWORD') window.location.href = '/';
 ---
 
 *Built with ✦ for Azis Digital Hub, Jabalpur, MP — 2025*
+=======
+# My-Business-Website
+>>>>>>> ca58973c4068cfb26eac60d99f57de8c9d0585ad
