@@ -1,0 +1,19 @@
+{
+  "name": "azis-digital-hub",
+  "version": "1.0.0",
+  "description": "Premium Digital Services Website — Azis Digital Hub, Jabalpur",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "deploy": "firebase deploy --only hosting"
+  },
+  "keywords": ["digital-services", "jabalpur", "wedding-invitation", "website-design"],
+  "author": "Azis Digital Hub",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "firebase-tools": "^13.0.0"
+  }
+}

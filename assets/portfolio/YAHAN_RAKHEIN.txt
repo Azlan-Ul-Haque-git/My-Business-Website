@@ -1,0 +1,27 @@
+=============================================
+  PORTFOLIO MEDIA FILES — YAHAN RAKHEIN
+=============================================
+
+Is folder mein apni portfolio photos aur videos rakhein.
+
+FORMATS SUPPORTED:
+  Photos : .jpg, .jpeg, .png, .webp
+  Videos : .mp4, .webm
+
+EXAMPLE FILES:
+  wedding1.mp4        ← Wedding invitation video
+  wedding2.mp4
+  web-project1.jpg    ← Website screenshot
+  resume-sample.jpg   ← Resume design
+  logo-design.jpg     ← Logo/branding work
+  certificate1.jpg    ← Certificate design
+
+THEN OPEN portfolio.html aur PORTFOLIO_ITEMS array mein:
+  media: 'assets/portfolio/wedding1.mp4'
+  type: 'video'
+
+  media: 'assets/portfolio/web-project1.jpg'
+  type: 'image'
+
+Firebase pe bhi yahi folder upload hoga automatically.
+=============================================

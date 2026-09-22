@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio — Azis Digital Hub</title>
+  <meta name="description"
+    content="Browse our portfolio of websites, invitation videos, designs, branding, and more from Azis Digital Hub, Jabalpur.">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ── PORTFOLIO OVERHAUL ── */
+    .portfolio-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .portfolio-item {
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: var(--navy-light);
+      border: 1px solid var(--white-08);
+      aspect-ratio: 4/3;
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+      display: block;
+    }
+
+    .portfolio-item:hover {
+      border-color: var(--gold-border);
+      transform: translateY(-4px) scale(1.01);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Real image/video fill */
+    .portfolio-item img,
+    .portfolio-item video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+
+    .portfolio-item:hover img,
+    .portfolio-item:hover video {
+      transform: scale(1.05);
+    }
+
+    /* Fallback when no media */
+    .portfolio-item-fallback {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    .portfolio-item-fallback .pi-icon {
+      font-size: 3rem;
+      opacity: 0.6;
+    }
+
+    .portfolio-item-fallback .pi-label {
+      font-size: 0.82rem;
+      color: var(--white-60);
+      text-align: center;
+      padding: 0 20px;
+    }
+
+    /* Always-visible bottom label */
+    .portfolio-item-caption {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 28px 16px 14px;
+      background: linear-gradient(transparent, rgba(5, 6, 15, 0.92));
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .pi-title {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    .pi-cat {
+      font-size: 0.7rem;
+      color: var(--gold-bright);
+      font-family: var(--font-mono);
+      letter-spacing: 0.1em;
+    }
+
+    /* Video play badge */
+    .pi-play-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(5, 6, 15, 0.75);
+      border: 1px solid var(--gold-border);
+      border-radius: 100px;
+      padding: 4px 10px;
+      font-size: 0.68rem;
+      color: var(--gold-bright);
+      font-family: var(--font-mono);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      backdrop-filter: blur(6px);
+    }
+
+    /* Lightbox */
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      background: rgba(0, 0, 0, 0.92);
+      backdrop-filter: blur(8px);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .lightbox.open {
+      display: flex;
+    }
+
+    .lightbox-inner {
+      position: relative;
+      max-width: 860px;
+      width: 100%;
+      max-height: 90vh;
+    }
+
+    .lightbox-inner img,
+    .lightbox-inner video {
+      width: 100%;
+      max-height: 80vh;
+      object-fit: contain;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--gold-border);
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: -44px;
+      right: 0;
+      font-size: 1.6rem;
+      color: var(--white-60);
+      cursor: pointer;
+      background: none;
+      border: none;
+      transition: color 0.2s;
+      line-height: 1;
+    }
+
+    .lightbox-close:hover {
+      color: var(--white);
+    }
+
+    .lightbox-info {
+      margin-top: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .lightbox-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    .lightbox-cat {
+      font-size: 0.72rem;
+      color: var(--gold-bright);
+      font-family: var(--font-mono);
+    }
+
+    /* Upload guide card */
+    .upload-guide {
+      background: var(--navy-light);
+      border: 1px dashed var(--gold-border);
+      border-radius: var(--radius-lg);
+      padding: 28px 32px;
+      margin-bottom: 40px;
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    .upload-guide-icon {
+      font-size: 2rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .upload-guide h4 {
+      color: var(--gold-bright);
+      font-size: 0.95rem;
+      margin-bottom: 6px;
+    }
+
+    .upload-guide p {
+      font-size: 0.82rem;
+      line-height: 1.7;
+    }
+
+    .upload-guide code {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      background: var(--white-08);
+      padding: 2px 7px;
+      border-radius: 4px;
+      color: var(--gold-pale);
+    }
+
+    /* Tabs */
+    .portfolio-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      padding: 8px 20px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      border-radius: 100px;
+      border: 1px solid var(--white-08);
+      color: var(--white-60);
+      transition: all 0.25s;
+      cursor: pointer;
+      background: transparent;
+    }
+
+    .tab-btn.active,
+    .tab-btn:hover {
+      background: var(--gold-glow);
+      border-color: var(--gold-border);
+      color: var(--gold-pale);
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .portfolio-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 520px) {
+      .portfolio-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .upload-guide {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav class="navbar scrolled" id="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <span class="nav-logo-main">Azis <span>Digital</span> Hub</span>
+        <span class="nav-logo-sub">Premium Digital Services</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="catalogue.html">Services</a>
+        <a href="portfolio.html" style="color:var(--gold-bright);">Portfolio</a>
+        <a href="templates.html">Templates</a>
+        <a href="contact.html">Contact</a>
+      </div>
+      <a href="https://wa.me/919685325881" target="_blank" class="btn btn-gold nav-cta">💬 WhatsApp Us</a>
+      <button class="nav-toggle" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+  <div class="mobile-menu">
+    <a href="index.html">Home</a>
+    <a href="catalogue.html">All Services</a>
+    <a href="portfolio.html">Portfolio</a>
+    <a href="templates.html">Templates</a>
+    <a href="contact.html">Contact Us</a>
+    <a href="https://wa.me/919685325881" target="_blank" class="btn btn-whatsapp"
+      style="width:100%;justify-content:center;margin-top:8px;">💬 WhatsApp Us</a>
+  </div>
+
+  <!-- HERO -->
+  <section class="page-hero">
+    <div class="container">
+      <span class="section-label">Our Work</span>
+      <h1 class="section-title fade-up"><em>Portfolio</em> &amp; Gallery</h1>
+      <div class="gold-rule" style="margin:20px auto;"></div>
+      <p class="section-sub fade-up">Real work delivered to real clients across Jabalpur and Madhya Pradesh. Photos and
+        videos of actual projects.</p>
+    </div>
+  </section>
+
+
+
+
+  <!-- PORTFOLIO -->
+  <section class="section portfolio-section" style="background:var(--navy-dark);padding-top:24px;">
+    <div class="container">
+      <div class="portfolio-tabs fade-up" id="portfolio-tabs"></div>
+      <div class="portfolio-grid" id="portfolio-grid"></div>
+
+      <div style="text-align:center;margin-top:56px;" class="fade-up">
+        <p style="margin-bottom:20px;color:var(--white-60);">Aur samples WhatsApp pe dekhein ya apna project discuss
+          karen</p>
+        <a href="https://wa.me/919685325881?text=Hi! I'd like to see more portfolio samples." target="_blank"
+          class="btn btn-whatsapp" style="font-size:1rem;padding:14px 28px;">
+          <span>💬</span> View More on WhatsApp
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="container">
+      <h2 class="section-title">Your Work Could Be <em>Next</em></h2>
+      <p>Join hundreds of happy clients. Let's create something memorable together.</p>
+      <div class="cta-actions" style="margin-top:36px;">
+        <a href="https://wa.me/919685325881" target="_blank" class="btn btn-whatsapp"
+          style="padding:16px 32px;font-size:1rem;"><span>💬</span> Get a Free Quote</a>
+        <a href="templates.html" class="btn btn-outline" style="padding:16px 32px;">Browse Templates</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand-logo">Azis <span>Digital</span> Hub</div>
+          <p class="footer-brand-desc">Premium digital services in Jabalpur, MP.</p>
+          <div class="footer-social">
+            <a href="https://wa.me/919685325881" target="_blank">💬</a>
+            <a href="tel:+919685325881">📞</a>
+          </div>
+        </div>
+        <div>
+          <div class="footer-col-title">Navigate</div>
+          <div class="footer-links">
+            <a href="index.html">Home</a>
+            <a href="catalogue.html">Services</a>
+            <a href="portfolio.html">Portfolio</a>
+            <a href="templates.html">Templates</a>
+            <a href="contact.html">Contact</a>
+          </div>
+        </div>
+        <div>
+          <div class="footer-col-title">Services</div>
+          <div class="footer-links">
+            <a href="service.html?id=website-design">Website Design</a>
+            <a href="service.html?id=wedding-invitations">Invitations</a>
+            <a href="service.html?id=business-branding">Branding</a>
+            <a href="service.html?id=graphic-design">Graphic Design</a>
+          </div>
+        </div>
+        <div>
+          <div class="footer-col-title">Contact</div>
+          <div class="footer-links">
+            <a href="tel:+919685325881">+91 9685325881</a>
+            <a href="https://wa.me/919685325881" target="_blank">WhatsApp</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2025 Azis Digital Hub. All rights reserved.</span>
+        <span>Jabalpur, MP · India</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+    <div class="lightbox-inner">
+      <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+      <div id="lightbox-media"></div>
+      <div class="lightbox-info">
+        <div>
+          <div class="lightbox-title" id="lightbox-title"></div>
+          <div class="lightbox-cat" id="lightbox-cat"></div>
+        </div>
+        <a id="lightbox-wa" href="#" target="_blank" class="btn btn-whatsapp"
+          style="font-size:0.82rem;padding:10px 18px;">
+          <span>💬</span> Order This Style
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="float-btns">
+    <a href="tel:+919685325881" class="float-btn float-btn-call" style="position:relative;">📞<span
+        class="float-btn-label">Call</span></a>
+    <a href="https://wa.me/919685325881" target="_blank" class="float-btn float-btn-wa"
+      style="position:relative;">💬<span class="float-btn-label">WhatsApp</span></a>
+  </div>
+
+  <script src="js/main.js"></script>
+  <script>
+    /* ============================================
+       PORTFOLIO DATA
+       ── Apni photo ya video add karne ke liye ──
+       media: 'assets/portfolio/yourfile.jpg'  ← image path
+       media: 'assets/portfolio/yourvideo.mp4' ← video path
+       type: 'image' ya 'video'
+       Agar media blank rakho toh colored fallback dikhayi dega
+       ============================================ */
+    const PORTFOLIO_ITEMS = [
+      // ── WEBSITES ──
+      {
+        id: 1, cat: 'web', catLabel: 'Website Design',
+        title: 'Business Website',
+        type: 'image',
+        media: '',           // ← Replace with: 'assets/portfolio/web1.jpg'
+        bg: 'linear-gradient(135deg,#0d1f3c,#1a3a6b)',
+        icon: '🌐'
+      },
+      {
+        id: 2, cat: 'web', catLabel: 'Website Design',
+        title: 'E-Commerce Website',
+        type: 'image',
+        media: '',           // ← 'assets/portfolio/web2.jpg'
+        bg: 'linear-gradient(135deg,#001a1f,#004a5a)',
+        icon: '🛒'
+      },
+
+      // ── INVITATIONS ──
+      {
+        id: 3, cat: 'invite', catLabel: 'Invitation Video',
+        title: 'Wedding Invitation Video',
+        type: 'video',
+        media: '',           // ← 'assets/portfolio/wedding1.mp4'
+        bg: 'linear-gradient(135deg,#1a0a2e,#3d1e6e)',
+        icon: '💍'
+      },
+      {
+        id: 4, cat: 'invite', catLabel: 'Invitation Video',
+        title: 'Royal Theme Invitation',
+        type: 'video',
+        media: '',           // ← 'assets/portfolio/royal1.mp4'
+        bg: 'linear-gradient(135deg,#1a0a0a,#4a1515)',
+        icon: '👑'
+      },
+      {
+        id: 5, cat: 'invite', catLabel: 'Invitation Video',
+        title: 'Floral Theme Invite',
+        type: 'video',
+        media: '',           // ← 'assets/portfolio/floral1.mp4'
+        bg: 'linear-gradient(135deg,#0d1f0d,#2d4a1e)',
+        icon: '🌸'
+      },
+
+      // ── DESIGN ──
+      {
+        id: 6, cat: 'design', catLabel: 'Resume / CV',
+        title: 'Resume Design',
+        type: 'image',
+        media: '',           // ← 'assets/portfolio/resume1.jpg'
+        bg: 'linear-gradient(135deg,#0d1f0d,#1a3d1a)',
+        icon: '📄'
+      },
+      {
+        id: 7, cat: 'design', catLabel: 'Graphic Design',
+        title: 'Social Media Graphics',
+        type: 'image',
+        media: '',           // ← 'assets/portfolio/social1.jpg'
+        bg: 'linear-gradient(135deg,#0a1a1f,#123d4a)',
+        icon: '🎨'
+      },
+      {
+        id: 8, cat: 'design', catLabel: 'Certificate Design',
+        title: 'Certificate Design',
+        type: 'image',
+        media: '',           // ← 'assets/portfolio/cert1.jpg'
+        bg: 'linear-gradient(135deg,#1a1f00,#3d4500)',
+        icon: '🏅'
+      },
+      {
+        id: 9, cat: 'design', catLabel: 'Project Cover',
+        title: 'Project Cover Page',
+        type: 'image',
+        media: '',           // ← 'assets/portfolio/cover1.jpg'
+        bg: 'linear-gradient(135deg,#1a1200,#3d2d00)',
+        icon: '📁'
+      },
+
+      // ── BRANDING ──
+      {
+        id: 10, cat: 'branding', catLabel: 'Business Branding',
+        title: 'Logo & Brand Identity',
+        type: 'image',
+        media: '',           // ← 'assets/portfolio/logo1.jpg'
+        bg: 'linear-gradient(135deg,#1f1200,#4a2d00)',
+        icon: '💼'
+      },
+      {
+        id: 11, cat: 'branding', catLabel: 'Business Branding',
+        title: 'Visiting Card Design',
+        type: 'image',
+        media: '',           // ← 'assets/portfolio/card1.jpg'
+        bg: 'linear-gradient(135deg,#1f001a,#4a0040)',
+        icon: '🎴'
+      },
+    ];
+
+    /* ── TAB CATEGORIES ── */
+    const TABS = [
+      { key: 'all', label: 'All Work' },
+      { key: 'web', label: 'Websites' },
+      { key: 'invite', label: 'Invitations' },
+      { key: 'design', label: 'Design' },
+      { key: 'branding', label: 'Branding' },
+    ];
+
+    let activeFilter = 'all';
+
+    /* ── RENDER TABS ── */
+    function renderTabs() {
+      const tabsEl = document.getElementById('portfolio-tabs');
+      tabsEl.innerHTML = TABS.map(t => `
+    <button class="tab-btn ${t.key === activeFilter ? 'active' : ''}"
+      data-filter="${t.key}" onclick="setFilter('${t.key}')">
+      ${t.label}
+    </button>
+  `).join('');
+    }
+
+    function setFilter(key) {
+      activeFilter = key;
+      renderTabs();
+      renderGrid();
+    }
+
+    /* ── RENDER GRID ── */
+    function renderGrid() {
+      const grid = document.getElementById('portfolio-grid');
+      const filtered = activeFilter === 'all'
+        ? PORTFOLIO_ITEMS
+        : PORTFOLIO_ITEMS.filter(p => p.cat === activeFilter);
+
+      grid.innerHTML = filtered.map(p => {
+        const hasMedia = p.media && p.media.trim() !== '';
+        const isVideo = p.type === 'video';
+
+        const mediaHtml = hasMedia
+          ? isVideo
+            ? `<video src="${p.media}" muted playsinline preload="metadata"
+               onmouseenter="this.play()" onmouseleave="this.pause();this.currentTime=0"
+               style="width:100%;height:100%;object-fit:cover;display:block;"></video>`
+            : `<img src="${p.media}" alt="${p.title}" loading="lazy"
+               style="width:100%;height:100%;object-fit:cover;display:block;">`
+          : `<div class="portfolio-item-fallback" style="background:${p.bg};">
+           <div class="pi-icon">${p.icon}</div>
+           <div class="pi-label">${p.title}</div>
+         </div>`;
+
+        const videoBadge = isVideo
+          ? `<div class="pi-play-badge">▶ Video</div>` : '';
+
+        return `
+      <div class="portfolio-item fade-up" onclick="openLightbox(${p.id})">
+        ${mediaHtml}
+        ${videoBadge}
+        <div class="portfolio-item-caption">
+          <div class="pi-title">${p.title}</div>
+          <div class="pi-cat">${p.catLabel}</div>
+        </div>
+      </div>`;
+      }).join('');
+
+      // Re-run animation observer
+      document.querySelectorAll('.fade-up').forEach(el => {
+        el.classList.remove('visible');
+        setTimeout(() => el.classList.add('visible'), 50);
+      });
+    }
+
+    /* ── LIGHTBOX ── */
+    function openLightbox(id) {
+      const p = PORTFOLIO_ITEMS.find(x => x.id === id);
+      if (!p) return;
+
+      const lb = document.getElementById('lightbox');
+      const media = document.getElementById('lightbox-media');
+      const title = document.getElementById('lightbox-title');
+      const cat = document.getElementById('lightbox-cat');
+      const waLink = document.getElementById('lightbox-wa');
+
+      if (p.media && p.media.trim()) {
+        media.innerHTML = p.type === 'video'
+          ? `<video src="${p.media}" controls autoplay muted playsinline style="width:100%;max-height:70vh;border-radius:12px;border:1px solid rgba(212,160,23,0.25);"></video>`
+          : `<img src="${p.media}" alt="${p.title}" style="width:100%;max-height:70vh;object-fit:contain;border-radius:12px;border:1px solid rgba(212,160,23,0.25);">`;
+      } else {
+        media.innerHTML = `<div style="background:${p.bg};border-radius:12px;border:1px solid rgba(212,160,23,0.25);aspect-ratio:4/3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;">
+      <div style="font-size:5rem;">${p.icon}</div>
+      <div style="color:rgba(255,255,255,0.6);font-size:0.9rem;">${p.title}</div>
+      <div style="color:rgba(212,160,23,0.8);font-size:0.75rem;font-family:monospace;">Photo/video coming soon — WhatsApp for samples</div>
+    </div>`;
+      }
+
+      title.textContent = p.title;
+      cat.textContent = p.catLabel;
+      const msg = encodeURIComponent(`Hi! I saw your "${p.title}" in the portfolio. I'm interested in this style!`);
+      waLink.href = `https://wa.me/919685325881?text=${msg}`;
+
+      lb.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox(e) {
+      if (e && e.target !== document.getElementById('lightbox') && !e.target.classList.contains('lightbox-close')) return;
+      const lb = document.getElementById('lightbox');
+      lb.classList.remove('open');
+      document.body.style.overflow = '';
+      // Stop any playing video
+      const vid = lb.querySelector('video');
+      if (vid) { vid.pause(); vid.src = ''; }
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeLightbox({ target: document.getElementById('lightbox') });
+    });
+
+    /* ── INIT ── */
+    document.addEventListener('DOMContentLoaded', () => {
+      renderTabs();
+      renderGrid();
+    });
+  </script>
+</body>
+
+</html>

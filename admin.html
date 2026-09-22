@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel — Azis Digital Hub</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .admin-section {
+      display: none;
+    }
+
+    .admin-section.active {
+      display: block;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(0, 0, 0, 0.7);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--navy-light);
+      border: 1px solid var(--gold-border);
+      border-radius: var(--radius-xl);
+      padding: 36px;
+      width: 90%;
+      max-width: 520px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal h3 {
+      margin-bottom: 24px;
+      color: var(--white);
+    }
+
+    .action-btns {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-sm {
+      padding: 6px 14px;
+      font-size: 0.78rem;
+      border-radius: var(--radius-sm);
+    }
+
+    .btn-danger {
+      background: rgba(231, 76, 60, 0.15);
+      color: #e74c3c;
+      border: 1px solid rgba(231, 76, 60, 0.3);
+    }
+
+    .btn-edit {
+      background: var(--gold-glow);
+      color: var(--gold-pale);
+      border: 1px solid var(--gold-border);
+    }
+
+    .search-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .search-input {
+      flex: 1;
+      background: var(--navy-dark);
+      border: 1px solid var(--white-08);
+      border-radius: var(--radius-md);
+      padding: 10px 16px;
+      color: var(--white-90);
+      font-size: 0.88rem;
+      font-family: var(--font-body);
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--gold-bright);
+    }
+  </style>
+</head>
+
+<body style="background:var(--navy-deep);">
+
+  <!-- ADMIN LAYOUT -->
+  <div class="admin-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar-logo">
+        <div class="nav-logo-main" style="font-family:var(--font-display);font-size:1.1rem;color:var(--white);">Azis
+          <span style="color:var(--gold-bright);">Digital</span> Hub</div>
+        <div
+          style="font-size:0.65rem;font-family:var(--font-mono);letter-spacing:0.15em;color:var(--gold-bright);margin-top:4px;">
+          ADMIN PANEL</div>
+      </div>
+
+      <nav>
+        <div class="admin-nav-item active" onclick="showSection('dashboard')">
+          <span>📊</span> Dashboard
+        </div>
+        <div class="admin-nav-item" onclick="showSection('enquiries')">
+          <span>💬</span> Enquiries
+        </div>
+        <div class="admin-nav-item" onclick="showSection('services')">
+          <span>⚙️</span> Services
+        </div>
+        <div class="admin-nav-item" onclick="showSection('gallery')">
+          <span>🖼️</span> Portfolio
+        </div>
+        <div class="admin-nav-item" onclick="showSection('testimonials')">
+          <span>⭐</span> Testimonials
+        </div>
+        <div class="admin-nav-item" onclick="showSection('settings')">
+          <span>🔧</span> Settings
+        </div>
+        <div style="margin-top:32px;padding:0 20px;">
+          <a href="index.html" class="btn btn-outline" style="width:100%;justify-content:center;font-size:0.82rem;">←
+            View Site</a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="admin-main">
+
+      <!-- DASHBOARD -->
+      <section class="admin-section active" id="section-dashboard">
+        <div class="admin-header">
+          <div>
+            <h2 style="color:var(--white);margin-bottom:4px;">Dashboard</h2>
+            <p style="font-size:0.82rem;">Welcome back to Azis Digital Hub Admin</p>
+          </div>
+          <div style="font-family:var(--font-mono);font-size:0.78rem;color:var(--gold-bright);" id="current-time"></div>
+        </div>
+
+        <div class="admin-stats-grid">
+          <div class="admin-stat-card">
+            <div style="font-size:1.5rem;margin-bottom:8px;">💬</div>
+            <div class="admin-stat-val" id="stat-enquiries">0</div>
+            <div class="admin-stat-label">Total Enquiries</div>
+          </div>
+          <div class="admin-stat-card">
+            <div style="font-size:1.5rem;margin-bottom:8px;">✅</div>
+            <div class="admin-stat-val" id="stat-completed">0</div>
+            <div class="admin-stat-label">Completed Orders</div>
+          </div>
+          <div class="admin-stat-card">
+            <div style="font-size:1.5rem;margin-bottom:8px;">⚙️</div>
+            <div class="admin-stat-val">13</div>
+            <div class="admin-stat-label">Active Services</div>
+          </div>
+          <div class="admin-stat-card">
+            <div style="font-size:1.5rem;margin-bottom:8px;">⭐</div>
+            <div class="admin-stat-val" id="stat-testimonials">0</div>
+            <div class="admin-stat-label">Testimonials</div>
+          </div>
+        </div>
+
+        <!-- Recent Enquiries -->
+        <div class="admin-table-wrap">
+          <div class="admin-table-head">
+            <div class="admin-table-title">Recent Enquiries</div>
+            <button class="btn btn-gold btn-sm" onclick="showSection('enquiries')">View All →</button>
+          </div>
+          <div id="dashboard-recent"></div>
+        </div>
+      </section>
+
+      <!-- ENQUIRIES -->
+      <section class="admin-section" id="section-enquiries">
+        <div class="admin-header">
+          <div>
+            <h2 style="color:var(--white);margin-bottom:4px;">Enquiries</h2>
+            <p style="font-size:0.82rem;">Manage all customer enquiries</p>
+          </div>
+          <button class="btn btn-gold btn-sm" onclick="openModal('add-enquiry')">+ Add Enquiry</button>
+        </div>
+        <div class="search-bar">
+          <input type="text" class="search-input" placeholder="Search by name or service…"
+            oninput="searchEnquiries(this.value)">
+        </div>
+        <div class="admin-table-wrap">
+          <div id="enquiries-table"></div>
+        </div>
+      </section>
+
+      <!-- SERVICES -->
+      <section class="admin-section" id="section-services">
+        <div class="admin-header">
+          <div>
+            <h2 style="color:var(--white);margin-bottom:4px;">Services</h2>
+            <p style="font-size:0.82rem;">Manage your service offerings and prices</p>
+          </div>
+          <button class="btn btn-gold btn-sm" onclick="openModal('edit-service')">+ Add Service</button>
+        </div>
+        <div class="admin-table-wrap" id="services-table"></div>
+      </section>
+
+      <!-- GALLERY -->
+      <section class="admin-section" id="section-gallery">
+        <div class="admin-header">
+          <div>
+            <h2 style="color:var(--white);margin-bottom:4px;">Portfolio / Gallery</h2>
+            <p style="font-size:0.82rem;">Manage your portfolio items</p>
+          </div>
+          <button class="btn btn-gold btn-sm" onclick="openModal('add-gallery')">+ Add Item</button>
+        </div>
+        <div class="admin-table-wrap" id="gallery-table"></div>
+      </section>
+
+      <!-- TESTIMONIALS -->
+      <section class="admin-section" id="section-testimonials">
+        <div class="admin-header">
+          <div>
+            <h2 style="color:var(--white);margin-bottom:4px;">Testimonials</h2>
+            <p style="font-size:0.82rem;">Manage customer reviews shown on the site</p>
+          </div>
+          <button class="btn btn-gold btn-sm" onclick="openModal('add-testimonial')">+ Add Review</button>
+        </div>
+        <div class="admin-table-wrap" id="testimonials-table"></div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section class="admin-section" id="section-settings">
+        <div class="admin-header">
+          <h2 style="color:var(--white);">Site Settings</h2>
+        </div>
+        <div style="display:grid;gap:24px;max-width:600px;">
+          <div class="contact-form" style="padding:28px;">
+            <h4 style="color:var(--white);margin-bottom:20px;">Business Info</h4>
+            <div class="form-group">
+              <label class="form-label">Business Name</label>
+              <input type="text" class="form-input" value="Azis Digital Hub" id="setting-name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">WhatsApp Number</label>
+              <input type="text" class="form-input" value="+91 9685325881" id="setting-wa">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone Number</label>
+              <input type="text" class="form-input" value="+91 9685325881" id="setting-phone">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Address</label>
+              <textarea class="form-textarea" style="min-height:80px;"
+                id="setting-address">1581/4 Nav Nivesh Colony, Ganga Nagar, Garha, Jabalpur – 482003, MP</textarea>
+            </div>
+            <button class="btn btn-gold" onclick="saveSettings()">Save Settings</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- MODALS -->
+  <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+    <div class="modal" id="modal-content">
+      <!-- filled by JS -->
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+  <script>
+    /* ── ADMIN STATE ── */
+    let adminData = {
+      enquiries: JSON.parse(localStorage.getItem('adh_enquiries') || '[]'),
+      gallery: JSON.parse(localStorage.getItem('adh_gallery') || '[]'),
+      customTestimonials: JSON.parse(localStorage.getItem('adh_testimonials') || '[]'),
+    };
+
+    /* ── NAV ── */
+    function showSection(id) {
+      document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.admin-nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById('section-' + id).classList.add('active');
+      const items = document.querySelectorAll('.admin-nav-item');
+      const map = { dashboard: 0, enquiries: 1, services: 2, gallery: 3, testimonials: 4, settings: 5 };
+      items[map[id]].classList.add('active');
+      renderSection(id);
+    }
+
+    function renderSection(id) {
+      if (id === 'dashboard') renderDashboard();
+      else if (id === 'enquiries') renderEnquiries();
+      else if (id === 'services') renderAdminServices();
+      else if (id === 'gallery') renderAdminGallery();
+      else if (id === 'testimonials') renderAdminTestimonials();
+    }
+
+    /* ── CLOCK ── */
+    function updateClock() {
+      const el = document.getElementById('current-time');
+      if (el) el.textContent = new Date().toLocaleString('en-IN');
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    /* ── DASHBOARD ── */
+    function renderDashboard() {
+      document.getElementById('stat-enquiries').textContent = adminData.enquiries.length;
+      document.getElementById('stat-completed').textContent = adminData.enquiries.filter(e => e.status === 'done').length;
+      document.getElementById('stat-testimonials').textContent = TESTIMONIALS.length + adminData.customTestimonials.length;
+
+      const recent = adminData.enquiries.slice(-5).reverse();
+      const el = document.getElementById('dashboard-recent');
+      if (recent.length === 0) {
+        el.innerHTML = '<div style="padding:32px;text-align:center;color:var(--white-60);">No enquiries yet. They\'ll appear here after form submissions.</div>';
+        return;
+      }
+      el.innerHTML = `<table><thead><tr><th>Name</th><th>Service</th><th>Phone</th><th>Status</th></tr></thead><tbody>
+    ${recent.map(e => `<tr>
+      <td style="color:var(--white);">${e.name}</td>
+      <td>${e.service}</td>
+      <td>${e.phone}</td>
+      <td><span class="badge ${e.status === 'done' ? 'badge-green' : 'badge-gold'}">${e.status === 'done' ? '✓ Done' : '⏳ Pending'}</span></td>
+    </tr>`).join('')}
+  </tbody></table>`;
+    }
+
+    /* ── ENQUIRIES ── */
+    function renderEnquiries(filter = '') {
+      const list = adminData.enquiries.filter(e =>
+        !filter || e.name.toLowerCase().includes(filter) || e.service.toLowerCase().includes(filter)
+      );
+      const el = document.getElementById('enquiries-table');
+      if (list.length === 0) {
+        el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--white-60);">No enquiries found.</div>';
+        return;
+      }
+      el.innerHTML = `<table><thead><tr><th>Name</th><th>Phone</th><th>Service</th><th>Message</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+    ${list.map((e, i) => `<tr>
+      <td style="color:var(--white);font-weight:500;">${e.name}</td>
+      <td><a href="tel:${e.phone}" style="color:var(--gold-bright);">${e.phone}</a></td>
+      <td>${e.service}</td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${e.message}">${e.message || '—'}</td>
+      <td><span class="badge ${e.status === 'done' ? 'badge-green' : 'badge-gold'}">${e.status === 'done' ? '✓ Done' : '⏳ Pending'}</span></td>
+      <td class="action-btns">
+        <button class="btn btn-sm btn-edit" onclick="toggleStatus(${i})">Toggle</button>
+        <a href="https://wa.me/${e.phone.replace(/\D/g, '')}" target="_blank" class="btn btn-sm btn-edit">💬</a>
+        <button class="btn btn-sm btn-danger" onclick="deleteEnquiry(${i})">✕</button>
+      </td>
+    </tr>`).join('')}
+  </tbody></table>`;
+    }
+
+    function searchEnquiries(val) { renderEnquiries(val.toLowerCase()); }
+
+    function toggleStatus(i) {
+      adminData.enquiries[i].status = adminData.enquiries[i].status === 'done' ? 'pending' : 'done';
+      save();
+      renderEnquiries();
+    }
+    function deleteEnquiry(i) {
+      if (confirm('Delete this enquiry?')) {
+        adminData.enquiries.splice(i, 1);
+        save();
+        renderEnquiries();
+      }
+    }
+
+    /* ── SERVICES TABLE ── */
+    function renderAdminServices() {
+      const el = document.getElementById('services-table');
+      el.innerHTML = `<table><thead><tr><th>Icon</th><th>Service</th><th>Category</th><th>Starting Price</th><th>Actions</th></tr></thead><tbody>
+    ${SERVICES.map((s, i) => `<tr>
+      <td>${s.icon}</td>
+      <td style="color:var(--white);font-weight:500;">${s.title}</td>
+      <td><span class="badge badge-gray">${s.category}</span></td>
+      <td style="color:var(--gold-bright);font-family:var(--font-mono);font-size:0.82rem;">${s.price}</td>
+      <td class="action-btns">
+        <a href="service.html?id=${s.id}" target="_blank" class="btn btn-sm btn-edit">View</a>
+      </td>
+    </tr>`).join('')}
+  </tbody></table>`;
+    }
+
+    /* ── GALLERY TABLE ── */
+    function renderAdminGallery() {
+      const el = document.getElementById('gallery-table');
+      const all = [
+        { title: 'Retail Business Site', cat: 'Website Design', status: 'published' },
+        { title: 'Floral Theme Invite', cat: 'Invitation Video', status: 'published' },
+        { title: 'Modern CV Design', cat: 'Resume / CV', status: 'published' },
+        { title: 'Kirana Store Branding', cat: 'Business Branding', status: 'published' },
+        ...adminData.gallery
+      ];
+      el.innerHTML = `<table><thead><tr><th>Title</th><th>Category</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+    ${all.map((g, i) => `<tr>
+      <td style="color:var(--white);">${g.title}</td>
+      <td>${g.cat}</td>
+      <td><span class="badge badge-green">${g.status}</span></td>
+      <td class="action-btns">
+        ${i >= 4 ? `<button class="btn btn-sm btn-danger" onclick="deleteGallery(${i - 4})">✕</button>` : '<span style="color:var(--white-60);font-size:0.75rem;">Built-in</span>'}
+      </td>
+    </tr>`).join('')}
+  </tbody></table>`;
+    }
+    function deleteGallery(i) {
+      adminData.gallery.splice(i, 1);
+      save();
+      renderAdminGallery();
+    }
+
+    /* ── TESTIMONIALS TABLE ── */
+    function renderAdminTestimonials() {
+      const el = document.getElementById('testimonials-table');
+      const all = [...TESTIMONIALS, ...adminData.customTestimonials];
+      el.innerHTML = `<table><thead><tr><th>Name</th><th>Role</th><th>Stars</th><th>Preview</th><th>Actions</th></tr></thead><tbody>
+    ${all.map((t, i) => `<tr>
+      <td style="color:var(--white);font-weight:500;">${t.name}</td>
+      <td>${t.role}</td>
+      <td style="color:var(--gold-bright);">${'★'.repeat(t.stars)}</td>
+      <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-style:italic;" title="${t.text}">${t.text}</td>
+      <td>${i >= TESTIMONIALS.length ? `<button class="btn btn-sm btn-danger" onclick="deleteTestimonial(${i - TESTIMONIALS.length})">✕</button>` : '<span style="color:var(--white-60);font-size:0.75rem;">Built-in</span>'}</td>
+    </tr>`).join('')}
+  </tbody></table>`;
+    }
+    function deleteTestimonial(i) {
+      adminData.customTestimonials.splice(i, 1);
+      save();
+      renderAdminTestimonials();
+    }
+
+    /* ── MODALS ── */
+    const MODALS = {
+      'add-enquiry': `
+    <h3>Add Enquiry</h3>
+    <form onsubmit="submitEnquiry(event)">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Name</label><input type="text" name="name" class="form-input" required></div>
+        <div class="form-group"><label class="form-label">Phone</label><input type="tel" name="phone" class="form-input" required></div>
+      </div>
+      <div class="form-group"><label class="form-label">Service</label>
+        <select name="service" class="form-select">
+          <option>Website Design</option><option>Wedding Invitation Video</option><option>PAN Card</option>
+          <option>Passport</option><option>Resume / CV</option><option>Branding</option><option>Other</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Message</label><textarea name="message" class="form-textarea"></textarea></div>
+      <div style="display:flex;gap:12px;">
+        <button type="submit" class="btn btn-gold">Add Enquiry</button>
+        <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      </div>
+    </form>`,
+      'add-testimonial': `
+    <h3>Add Testimonial</h3>
+    <form onsubmit="submitTestimonial(event)">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Client Name</label><input type="text" name="name" class="form-input" required></div>
+        <div class="form-group"><label class="form-label">Initials (2 chars)</label><input type="text" name="initials" class="form-input" maxlength="2" required></div>
+      </div>
+      <div class="form-group"><label class="form-label">Role / Location</label><input type="text" name="role" class="form-input" placeholder="e.g. Student, Jabalpur"></div>
+      <div class="form-group"><label class="form-label">Review Text</label><textarea name="text" class="form-textarea" required></textarea></div>
+      <div class="form-group"><label class="form-label">Stars (1–5)</label>
+        <select name="stars" class="form-select"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select>
+      </div>
+      <div style="display:flex;gap:12px;">
+        <button type="submit" class="btn btn-gold">Add Review</button>
+        <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      </div>
+    </form>`,
+      'add-gallery': `
+    <h3>Add Portfolio Item</h3>
+    <form onsubmit="submitGallery(event)">
+      <div class="form-group"><label class="form-label">Title</label><input type="text" name="title" class="form-input" required></div>
+      <div class="form-group"><label class="form-label">Category</label>
+        <select name="cat" class="form-select">
+          <option>Website Design</option><option>Invitation Video</option><option>Resume / CV</option>
+          <option>Business Branding</option><option>Graphic Design</option><option>Certificate</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:12px;">
+        <button type="submit" class="btn btn-gold">Add to Portfolio</button>
+        <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      </div>
+    </form>`
+    };
+
+    function openModal(type) {
+      document.getElementById('modal-content').innerHTML = MODALS[type] || '';
+      document.getElementById('modal-overlay').classList.add('open');
+    }
+    function closeModal(e) {
+      if (!e || e.target === document.getElementById('modal-overlay')) {
+        document.getElementById('modal-overlay').classList.remove('open');
+      }
+    }
+
+    /* ── FORM SUBMITS ── */
+    function submitEnquiry(e) {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      adminData.enquiries.push({ name: fd.get('name'), phone: fd.get('phone'), service: fd.get('service'), message: fd.get('message'), status: 'pending', date: new Date().toLocaleDateString('en-IN') });
+      save(); closeModal(); renderDashboard();
+    }
+    function submitTestimonial(e) {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      adminData.customTestimonials.push({ name: fd.get('name'), initials: fd.get('initials'), role: fd.get('role'), text: fd.get('text'), stars: parseInt(fd.get('stars')) });
+      save(); closeModal(); renderAdminTestimonials();
+    }
+    function submitGallery(e) {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      adminData.gallery.push({ title: fd.get('title'), cat: fd.get('cat'), status: 'published' });
+      save(); closeModal(); renderAdminGallery();
+    }
+    function saveSettings() {
+      alert('Settings saved! (In a live deployment, this would update your Firebase config.)');
+    }
+    function save() {
+      localStorage.setItem('adh_enquiries', JSON.stringify(adminData.enquiries));
+      localStorage.setItem('adh_gallery', JSON.stringify(adminData.gallery));
+      localStorage.setItem('adh_testimonials', JSON.stringify(adminData.customTestimonials));
+    }
+
+    /* ── INIT ── */
+    document.addEventListener('DOMContentLoaded', () => {
+      renderDashboard();
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+    width="320" height="80"
+    viewBox="0 0 320 80">
+
+    <defs>
+        <!-- ✅ Luxury Gold Gradient -->
+        <linearGradient id="goldGrad" x1="0%" x2="100%">
+            <stop offset="0%" stop-color="#FFD700" />
+            <stop offset="50%" stop-color="#FFB347" />
+            <stop offset="100%" stop-color="#FFD700">
+
+                <!-- Shimmer Animation -->
+                <animate attributeName="stop-color"
+                    values="#FFD700;#FFF5C2;#FFB347;#FFD700"
+                    dur="4s"
+                    repeatCount="indefinite" />
+            </stop>
+
+            <animateTransform attributeName="gradientTransform"
+                type="translate"
+                values="-100 0;100 0;-100 0"
+                dur="6s"
+                repeatCount="indefinite" />
+        </linearGradient>
+
+        <!-- ✅ Royal Glow -->
+        <filter id="goldGlow">
+            <feGaussianBlur stdDeviation="4" result="blur" />
+            <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+            </feMerge>
+        </filter>
+
+        <!-- ✅ Sparkle Animation -->
+        <style>
+            .sparkle {
+            animation: sparkleAnim 1.8s ease-in-out infinite;
+            transform-origin: center;
+            }
+
+            @keyframes sparkleAnim {
+            0%, 100% { opacity: 0; transform: scale(0.2); }
+            50% { opacity: 1; transform: scale(1.4); }
+            }
+
+            /* ✅ Diamond Twinkle */
+            .diamond {
+            animation: twinkle 1.2s infinite alternate;
+            }
+
+            @keyframes twinkle {
+            from { opacity: 0.4; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1.15); }
+            }
+        </style>
+    </defs>
+
+    <!-- ✅ Gold Sparkle Particles -->
+    <circle cx="15" cy="18" r="2" fill="#FFD700" class="sparkle" />
+    <circle cx="65" cy="10" r="2.5" fill="#FFF5C2" class="sparkle" />
+    <circle cx="75" cy="35" r="2" fill="#FFD700" class="sparkle" />
+    <circle cx="20" cy="55" r="2.2" fill="#FFF5C2" class="sparkle" />
+
+    <!-- ✅ Wedding Rings Icon -->
+    <g filter="url(#goldGlow)">
+
+        <!-- Ring 1 -->
+        <circle cx="45" cy="40" r="18"
+            fill="none"
+            stroke="url(#goldGrad)"
+            stroke-width="4" />
+
+        <!-- Ring 2 -->
+        <circle cx="62" cy="40" r="18"
+            fill="none"
+            stroke="url(#goldGrad)"
+            stroke-width="4"
+            opacity="0.85" />
+
+        <!-- ✅ AI Monogram Inside Ring -->
+        <text x="38" y="46"
+            font-size="15"
+            font-family="Georgia"
+            font-weight="800"
+            fill="white">
+            A
+        </text>
+
+        <text x="55" y="46"
+            font-size="15"
+            font-family="Georgia"
+            font-weight="800"
+            fill="white">
+            I
+        </text>
+
+        <!-- ✅ Diamond Twinkle -->
+        <polygon points="54,14 60,24 54,34 48,24"
+            fill="white"
+            class="diamond" />
+    </g>
+
+    <!-- ✅ Brand Name -->
+    <text x="100" y="50"
+        font-size="30"
+        font-family="Georgia"
+        font-weight="700"
+        fill="url(#goldGrad)">
+        Azis Invites
+    </text>
+
+    <!-- ✅ Tagline -->
+    <text x="104" y="68"
+        font-size="12"
+        font-family="Arial"
+        fill="#888">
+        Luxury Wedding Invitation Videos
+    </text>
+
+</svg>
