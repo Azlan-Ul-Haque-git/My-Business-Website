@@ -444,51 +444,93 @@
           </a>
         </div>
         <div class="fade-up fade-up-d2">
+
           <div class="contact-form">
-            <h3 style="margin-bottom:24px;color:var(--white);">Send an Enquiry</h3>
-            <form id="contact-form">
-              <div class="form-row">
-                <div class="form-group">
-                  <label class="form-label">Your Name</label>
-                  <input type="text" name="name" class="form-input" placeholder="Rahul Sharma" required>
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Phone Number</label>
-                  <input type="tel" name="phone" class="form-input" placeholder="+91 98765 43210" required>
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Service Required</label>
-                <select name="service" class="form-select" required>
-                  <option value="">Select a service…</option>
-                  <option>Website Design</option>
-                  <option>Wedding Invitation Video</option>
-                  <option>PAN Card Services</option>
-                  <option>Passport Services</option>
-                  <option>Samagra Services</option>
-                  <option>Admission Form Filling</option>
-                  <option>Scholarship Forms</option>
-                  <option>Project Cover Page</option>
-                  <option>Resume / CV Design</option>
-                  <option>Certificate Design</option>
-                  <option>Graphic Design</option>
-                  <option>Business Branding</option>
-                  <option>Online Form Filling</option>
-                  <option>Other</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Message</label>
-                <textarea name="message" class="form-textarea" placeholder="Tell us what you need…"></textarea>
-              </div>
-              <button type="submit" class="btn btn-whatsapp"
-                style="width:100%;justify-content:center;font-size:1rem;padding:16px;">
-                <span>💬</span> Send via WhatsApp
-              </button>
+            <div class="form-header">
+              <span class="section-label">Enquiry Form</span>
+              <h3>Tell Us What You Need</h3>
+              <p class="form-subtitle">Fill in the details below — we'll reach out on WhatsApp within 1 hour.</p>
+            </div>
+
+            <form id="contact-form" action="https://formspree.io/f/mqpabljk" method="POST" novalidate></form>
+
+            <!-- Name -->
+            <div class="form-group floating">
+              <input type="text" name="name" id="f-name" class="form-input" placeholder=" " required>
+              <label for="f-name" class="floating-label">Your Name</label>
+              <span class="form-focus-line"></span>
+            </div>
+
+            <!-- Phone -->
+            <div class="form-group floating">
+              <input type="tel" name="phone" id="f-phone" class="form-input" placeholder=" " required>
+              <label for="f-phone" class="floating-label">Phone Number</label>
+              <span class="form-focus-line"></span>
+            </div>
+
+            <!-- Service (custom styled select) -->
+            <div class="form-group floating select-group">
+              <select name="service" id="f-service" class="form-select" required>
+                <option value="" disabled selected hidden></option>
+                <option>Website Design</option>
+                <option>Wedding Invitation Video</option>
+                <option>PAN Card Services</option>
+                <option>Passport Services</option>
+                <option>Samagra Services</option>
+                <option>Admission Form Filling</option>
+                <option>Scholarship Forms</option>
+                <option>Project Cover Page</option>
+                <option>Resume / CV Design</option>
+                <option>Certificate Design</option>
+                <option>Graphic Design</option>
+                <option>Business Branding</option>
+                <option>Online Form Filling</option>
+                <option>Other</option>
+              </select>
+              <label for="f-service" class="floating-label">Service Required</label>
+              <span class="select-arrow">▾</span>
+              <span class="form-focus-line"></span>
+            </div>
+
+            <!-- Message -->
+            <div class="form-group floating">
+              <textarea name="message" id="f-message" class="form-textarea" placeholder=" " rows="4"
+                required></textarea>
+              <label for="f-message" class="floating-label">Tell us about your project</label>
+              <span class="form-focus-line"></span>
+            </div>
+
+            <!-- Honeypot (spam protection — hidden from users) -->
+            <input type="text" name="_gotcha" style="display:none !important" tabindex="-1" autocomplete="off">
+
+            <!-- Consent -->
+            <div class="form-consent">
+              <label class="consent-label">
+                <input type="checkbox" name="consent" required>
+                <span class="consent-box"></span>
+                <span class="consent-text">
+                  I have read the <a href="privacy.html" target="_blank">Privacy Policy</a> and consent to Azis
+                  Digital Hub
+                  contacting me about this enquiry.
+                </span>
+              </label>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn btn-gold btn-submit" id="submit-btn">
+              <span class="btn-text">Send Enquiry</span>
+              <span class="btn-loader"></span>
+              <span class="btn-check">✓</span>
+            </button>
+
+            <!-- Status message -->
+            <div class="form-status" id="form-status"></div>
+
             </form>
           </div>
         </div>
       </div>
+    </div>
     </div>
   </section>
 
@@ -548,9 +590,7 @@
         <span>© 2025 Azis Digital Hub. All rights reserved.</span>
         <span>
           <a href="privacy.html">Privacy Policy</a>
-          <br>
           <a href="terms.html">Terms of Service</a>
-          <br>
           <a href="#" onclick="resetCookieConsent(); return false;">Cookie Settings</a>
         </span>
         <span>Made with ✦ in Jabalpur, MP</span>
