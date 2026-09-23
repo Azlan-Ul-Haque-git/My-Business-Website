@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://azis-digital--hub.web.app/sitemap.xml

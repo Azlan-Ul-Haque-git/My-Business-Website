@@ -2284,3 +2284,141 @@ tr:hover td {
     gap: 20px;
   }
 }
+
+.footer-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.footer-bottom a {
+  color: var(--white-70, #feefef);
+  text-decoration: none;
+  margin: 0 10px;
+  font-size: 0.85rem;
+  transition: color 0.2s ease;
+}
+
+.footer-bottom a:hover {
+  color: var(--gold-bright, #92740f);
+}
+
+.footer-bottom a:first-child {
+  margin-left: 0;
+}
+
+@media (max-width: 640px) {
+  .footer-bottom {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .footer-bottom a {
+    margin: 0 8px;
+  }
+}
+
+.footer-bottom a {
+  color: var(--white-70, #999);
+  text-decoration: none;
+  margin: 0 10px;
+  font-size: 0.85rem;
+  transition: color 0.2s ease;
+}
+
+.footer-bottom a:first-child {
+  margin-left: 0;
+}
+
+.footer-bottom a:hover {
+  color: var(--gold-bright, #d4af37);
+}
+/* Cookie Consent Banner */
+#cookie-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #1a1a1a;
+  color: #fff;
+  padding: 20px 24px;
+  z-index: 99999;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.cookie-banner-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.cookie-banner-text {
+  flex: 1;
+  min-width: 280px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.cookie-banner-text a {
+  color: #d4af37;
+  text-decoration: underline;
+}
+
+.cookie-banner-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.cookie-btn {
+  padding: 10px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+.cookie-btn-reject {
+  background: transparent;
+  color: #fff;
+  border: 1px solid #666;
+}
+
+.cookie-btn-reject:hover {
+  border-color: #999;
+}
+
+.cookie-btn-accept {
+  background: #d4af37;
+  color: #1a1a1a;
+  border: none;
+  font-weight: 600;
+}
+
+.cookie-btn-accept:hover {
+  background: #e0bd4a;
+}
+
+/* Footer legal links */
+.footer-bottom a {
+  color: var(--white-70, #999);
+  text-decoration: none;
+  margin: 0 10px;
+  font-size: 0.85rem;
+  transition: color 0.2s ease;
+}
+
+.footer-bottom a:first-child {
+  margin-left: 0;
+}
+
+.footer-bottom a:hover {
+  color: var(--gold-bright, #d4af37);
+}
