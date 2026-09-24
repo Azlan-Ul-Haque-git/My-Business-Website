@@ -921,12 +921,10 @@
       <div class="logo-mark">✦</div>
       <h2>Admin Access</h2>
       <p>Azis Digital Hub — Control Panel</p>
-      <input type="password" id="login-pass" placeholder="Enter password" autocomplete="current-password">
+      <input type="email" id="login-email" placeholder="Admin email" autocomplete="email" style="margin-bottom:12px;">
+      <input type="password" id="login-pass" placeholder="Password" autocomplete="current-password">
       <button onclick="attemptLogin()">Unlock Panel</button>
-      <div class="login-error" id="login-error">Incorrect password. Try again.</div>
-      <div class="login-hint">
-        Default password: <strong style="color:var(--gold-bright);">azis2025</strong>
-      </div>
+      <div class="login-error" id="login-error">Incorrect email or password.</div>
     </div>
   </div>
 
@@ -946,7 +944,7 @@
           </div>
           <div
             style="font-size:0.6rem;font-family:var(--font-mono);letter-spacing:0.15em;color:var(--gold-bright);margin-top:4px;">
-            ADMIN v3.0
+            ADMIN v4.0 · FIRESTORE
           </div>
         </div>
         <button class="admin-sidebar-close" onclick="closeSidebar()">×</button>
@@ -989,16 +987,6 @@
             <p>Welcome back to Azis Digital Hub</p>
           </div>
           <div style="font-family:var(--font-mono);font-size:0.78rem;color:var(--gold-bright);" id="current-time"></div>
-        </div>
-
-        <div class="storage-meter" id="storage-meter">
-          <div style="flex:1;">
-            <div style="color:var(--white);font-weight:600;">Local Storage Used</div>
-            <div style="color:var(--white-60);font-size:0.75rem;margin-top:2px;" id="storage-text">Calculating…</div>
-          </div>
-          <div class="storage-bar">
-            <div class="storage-fill" id="storage-fill" style="width:0%;"></div>
-          </div>
         </div>
 
         <div class="admin-stats-grid">
@@ -1213,125 +1201,32 @@
   <!-- TOASTS -->
   <div class="toast-wrap" id="toast-wrap"></div>
 
-  <script src="js/main.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/main.js"></script> <!-- ← ADD THIS LINE -->
+  <script src="js/admin-auth.js"></script>
+  <script src="js/admin-firestore.js"></script>
+
   <script>
     /* ═══════════════════════════════════════════════
-       ADMIN PANEL v3.0 — Responsive + Full CRUD
+       ADMIN PANEL v4.0 — Firestore-backed
        ═══════════════════════════════════════════════ */
 
-    const CONFIG = {
-      defaultPassword: 'azis2025',
-      passwordKey: 'adh_admin_pass',
-      dataKey: 'adh_admin_data_v2',
-      sessionKey: 'adh_admin_session'
-    };
-
-    const state = {
-      data: {
-        enquiries: [],
-        customServices: [],
-        deletedServices: [],
-        gallery: [],
-        customTestimonials: [],
-        deletedTestimonials: [],
-        settings: {
-          name: 'Azis Digital Hub',
-          wa: '+91 9685325881',
-          phone: '+91 9685325881',
-          email: 'azisinvites@gmail.com',
-          insta: 'https://www.instagram.com/azis_digital_hub',
-          address: '1581/4 Nav Nivesh Colony, Ganga Nagar, Garha, Jabalpur – 482003, MP'
-        }
-      },
-      filters: { enquiries: '', enqStatus: '', services: '', svcCat: '', gallery: '', testimonials: '' },
+    /* ── STATE ── */
+    var state = {
+      filters: { enquiries: '', services: '', gallery: '', testimonials: '' },
       editingIndex: null,
       editingType: null
     };
 
-    /* ── PERSISTENCE ── */
-    function loadData() {
-      try {
-        const raw = localStorage.getItem(CONFIG.dataKey);
-        if (raw) state.data = { ...state.data, ...JSON.parse(raw) };
-      } catch (e) { console.warn('Failed to load', e); }
-    }
-    function save() {
-      try {
-        localStorage.setItem(CONFIG.dataKey, JSON.stringify(state.data));
-      } catch (e) {
-        toast('Storage full. Export and reset data.', 'error');
-      }
+    /* ── HELPERS ── */
+    function esc(s) {
+      return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     }
 
-    /* ── AUTH ── */
-    function getPassword() {
-      return localStorage.getItem(CONFIG.passwordKey) || CONFIG.defaultPassword;
-    }
-    function attemptLogin() {
-      const input = document.getElementById('login-pass').value;
-      const err = document.getElementById('login-error');
-      if (input === getPassword()) {
-        sessionStorage.setItem(CONFIG.sessionKey, '1');
-        document.getElementById('login-gate').style.display = 'none';
-        document.getElementById('admin-app').style.display = 'grid';
-        init();
-        err.style.display = 'none';
-      } else {
-        err.style.display = 'block';
-        document.getElementById('login-pass').value = '';
-      }
-    }
-    function logout() {
-      sessionStorage.removeItem(CONFIG.sessionKey);
-      location.reload();
-    }
-    function checkSession() {
-      if (sessionStorage.getItem(CONFIG.sessionKey) === '1') {
-        document.getElementById('login-gate').style.display = 'none';
-        document.getElementById('admin-app').style.display = 'grid';
-        init();
-      }
-    }
-
-    /* ── SIDEBAR ── */
-    function openSidebar() {
-      document.getElementById('admin-sidebar').classList.add('open');
-      document.getElementById('sidebar-backdrop').classList.add('open');
-    }
-    function closeSidebar() {
-      document.getElementById('admin-sidebar').classList.remove('open');
-      document.getElementById('sidebar-backdrop').classList.remove('open');
-    }
-
-    /* ── NAV ── */
-    function showSection(id) {
-      document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
-      document.querySelectorAll('.admin-nav-item').forEach(n => n.classList.remove('active'));
-      document.getElementById('section-' + id).classList.add('active');
-      const items = document.querySelectorAll('.admin-nav-item');
-      const map = { dashboard: 0, enquiries: 1, services: 2, gallery: 3, testimonials: 4, settings: 5 };
-      items[map[id]].classList.add('active');
-      document.getElementById('bar-title').textContent = items[map[id]].textContent.trim().replace(/\d+$/, '').trim();
-      closeSidebar();
-      renderSection(id);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-    function renderSection(id) {
-      if (id === 'dashboard') renderDashboard();
-      else if (id === 'enquiries') renderEnquiries();
-      else if (id === 'services') renderAdminServices();
-      else if (id === 'gallery') renderAdminGallery();
-      else if (id === 'testimonials') renderAdminTestimonials();
-      else if (id === 'settings') renderSettings();
-    }
-
-    /* ── CLOCK ── */
-    function updateClock() {
-      const el = document.getElementById('current-time');
-      if (el) el.textContent = new Date().toLocaleString('en-IN');
-    }
-
-    /* ── TOASTS ── */
     function toast(msg, type = 'success') {
       const wrap = document.getElementById('toast-wrap');
       const el = document.createElement('div');
@@ -1341,7 +1236,6 @@
       setTimeout(() => el.remove(), 3200);
     }
 
-    /* ── CONFIRM ── */
     let confirmCallback = null;
     function confirmAction(title, msg, btnLabel, cb) {
       document.getElementById('confirm-title').textContent = title;
@@ -1359,272 +1253,285 @@
       closeConfirm();
     });
 
-    /* ── STORAGE METER ── */
-    function updateStorageMeter() {
-      const bytes = new Blob([JSON.stringify(state.data)]).size;
-      const kb = (bytes / 1024).toFixed(1);
-      const pct = Math.min((bytes / (5 * 1024 * 1024)) * 100, 100).toFixed(1);
-      document.getElementById('storage-text').textContent = `${kb} KB used of ~5 MB`;
-      document.getElementById('storage-fill').style.width = pct + '%';
-      document.getElementById('storage-meter').classList.toggle('warning', pct > 80);
+    /* ── LOGIN ── */
+    function attemptLogin() {
+      const email = document.getElementById('login-email').value.trim();
+      const pass = document.getElementById('login-pass').value;
+      const err = document.getElementById('login-error');
+
+      if (!email || !pass) {
+        err.textContent = 'Enter email and password.';
+        err.style.display = 'block';
+        return;
+      }
+
+      err.style.display = 'none';
+
+      AdminAuth.login(email, pass)
+        .then(function () {
+          document.getElementById('login-gate').style.display = 'none';
+          document.getElementById('admin-app').style.display = 'grid';
+          initAdmin();
+        })
+        .catch(function (error) {
+          err.textContent = error.message || 'Login failed.';
+          err.style.display = 'block';
+        });
     }
 
-    /* ── HELPERS ── */
-    function esc(s) {
-      return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    function logout() {
+      AdminAuth.logout().then(function () {
+        location.reload();
+      });
     }
-    function getActiveServices() {
-      const builtIn = (typeof SERVICES !== 'undefined' ? SERVICES : []).filter(s => !state.data.deletedServices.includes(s.id));
-      return [...builtIn, ...state.data.customServices];
+
+    function checkSession() {
+      AdminAuth.requireAuth()
+        .then(function () {
+          document.getElementById('login-gate').style.display = 'none';
+          document.getElementById('admin-app').style.display = 'grid';
+          initAdmin();
+        })
+        .catch(function () {
+          // Stay on login screen
+        });
     }
-    function getActiveTestimonials() {
-      return state.data.customTestimonials;
+
+    /* ── NAVIGATION ── */
+    function showSection(id) {
+      document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.admin-nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById('section-' + id).classList.add('active');
+      const items = document.querySelectorAll('.admin-nav-item');
+      const map = { dashboard: 0, enquiries: 1, services: 2, gallery: 3, testimonials: 4, settings: 5 };
+      items[map[id]].classList.add('active');
+      renderSection(id);
+      closeSidebar();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-    function updateBadges() {
-      const pending = state.data.enquiries.filter(e => e.status !== 'done').length;
-      const badge = document.getElementById('badge-enquiries');
-      if (badge) {
-        badge.textContent = pending;
-        badge.style.display = pending > 0 ? 'inline-block' : 'none';
-      }
+
+    function renderSection(id) {
+      if (id === 'dashboard') renderDashboard();
+      else if (id === 'enquiries') renderEnquiries();
+      else if (id === 'services') renderAdminServices();
+      else if (id === 'gallery') renderAdminGallery();
+      else if (id === 'testimonials') renderAdminTestimonials();
+      else if (id === 'settings') renderSettings();
+    }
+
+    /* ── SIDEBAR ── */
+    function openSidebar() {
+      document.getElementById('admin-sidebar').classList.add('open');
+      document.getElementById('sidebar-backdrop').classList.add('open');
+    }
+    function closeSidebar() {
+      document.getElementById('admin-sidebar').classList.remove('open');
+      document.getElementById('sidebar-backdrop').classList.remove('open');
+    }
+
+    /* ── CLOCK ── */
+    function updateClock() {
+      const el = document.getElementById('current-time');
+      if (el) el.textContent = new Date().toLocaleString('en-IN');
     }
 
     /* ── DASHBOARD ── */
     function renderDashboard() {
-      document.getElementById('stat-enquiries').textContent = state.data.enquiries.length;
-      document.getElementById('stat-completed').textContent = state.data.enquiries.filter(e => e.status === 'done').length;
-      document.getElementById('stat-services').textContent = getActiveServices().length;
-      document.getElementById('stat-testimonials').textContent = getActiveTestimonials().length;
-      updateStorageMeter();
-      updateBadges();
+      const s = AdminStore.state;
+      document.getElementById('stat-enquiries').textContent = s.enquiries.length;
+      document.getElementById('stat-completed').textContent = s.enquiries.filter(e => e.status === 'done').length;
+      document.getElementById('stat-services').textContent = s.services.length;
+      document.getElementById('stat-testimonials').textContent = s.testimonials.length;
 
-      const recent = state.data.enquiries.slice(-5).reverse();
+      const recent = s.enquiries.slice(-5).reverse();
       const el = document.getElementById('dashboard-recent');
       const elMobile = document.getElementById('dashboard-recent-mobile');
-
       if (recent.length === 0) {
         el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">💬</div><div>No enquiries yet</div></div>`;
         elMobile.innerHTML = el.innerHTML;
         return;
       }
-
       const rowsHTML = recent.map(e => `<tr>
-        <td style="color:var(--white);">${esc(e.name)}</td>
-        <td>${esc(e.service)}</td>
-        <td>${esc(e.phone)}</td>
-        <td><span class="badge ${e.status === 'done' ? 'badge-green' : 'badge-gold'}">${e.status === 'done' ? '✓ Done' : '⏳ Pending'}</span></td>
-      </tr>`).join('');
-
+    <td style="color:var(--white);">${esc(e.name)}</td>
+    <td>${esc(e.service)}</td>
+    <td>${esc(e.phone)}</td>
+    <td><span class="badge ${e.status === 'done' ? 'badge-green' : 'badge-gold'}">${e.status === 'done' ? '✓ Done' : '⏳ Pending'}</span></td>
+  </tr>`).join('');
       el.innerHTML = `<table><thead><tr><th>Name</th><th>Service</th><th>Phone</th><th>Status</th></tr></thead><tbody>${rowsHTML}</tbody></table>`;
-
       elMobile.innerHTML = recent.map(e => `
-        <div class="mobile-card">
-          <div class="mobile-card-header">
-            <div class="mobile-card-title">${esc(e.name)}</div>
-            <span class="badge ${e.status === 'done' ? 'badge-green' : 'badge-gold'}">${e.status === 'done' ? '✓' : '⏳'}</span>
-          </div>
-          <dl class="mobile-card-body">
-            <dt>Service</dt><dd>${esc(e.service)}</dd>
-            <dt>Phone</dt><dd><a href="tel:${esc(e.phone)}" style="color:var(--gold-bright);">${esc(e.phone)}</a></dd>
-          </dl>
-        </div>
-      `).join('');
+    <div class="mobile-card">
+      <div class="mobile-card-header">
+        <div class="mobile-card-title">${esc(e.name)}</div>
+        <span class="badge ${e.status === 'done' ? 'badge-green' : 'badge-gold'}">${e.status === 'done' ? '✓' : '⏳'}</span>
+      </div>
+      <dl class="mobile-card-body">
+        <dt>Service</dt><dd>${esc(e.service)}</dd>
+        <dt>Phone</dt><dd><a href="tel:${esc(e.phone)}" style="color:var(--gold-bright);">${esc(e.phone)}</a></dd>
+      </dl>
+    </div>
+  `).join('');
     }
 
     /* ── ENQUIRIES ── */
     function renderEnquiries() {
       const f = state.filters.enquiries;
-      const sFilter = state.filters.enqStatus;
-      const list = state.data.enquiries.filter(e =>
-        (!f || e.name.toLowerCase().includes(f) || e.service.toLowerCase().includes(f) || (e.phone || '').includes(f)) &&
-        (!sFilter || e.status === sFilter)
+      const list = AdminStore.state.enquiries.filter(e =>
+        !f || e.name.toLowerCase().includes(f) || e.service.toLowerCase().includes(f) || (e.phone || '').includes(f)
       );
       const el = document.getElementById('enquiries-table');
       const elMobile = document.getElementById('enquiries-mobile');
-
       if (list.length === 0) {
-        const empty = `<div class="empty-state"><div class="empty-state-icon">📭</div><div>No enquiries match your filters</div></div>`;
-        el.innerHTML = empty;
-        elMobile.innerHTML = empty;
+        const empty = `<div class="empty-state"><div class="empty-state-icon">📭</div><div>No enquiries found.</div></div>`;
+        el.innerHTML = empty; elMobile.innerHTML = empty;
         return;
       }
-
       el.innerHTML = `<table><thead><tr><th>Name</th><th>Phone</th><th>Service</th><th>Status</th><th>Actions</th></tr></thead><tbody>
-        ${list.map(e => {
-        const i = state.data.enquiries.indexOf(e);
-        return `<tr>
-            <td style="color:var(--white);font-weight:500;">${esc(e.name)}</td>
-            <td><a href="tel:${esc(e.phone)}" style="color:var(--gold-bright);">${esc(e.phone)}</a></td>
-            <td>${esc(e.service)}</td>
-            <td><span class="badge ${e.status === 'done' ? 'badge-green' : 'badge-gold'}">${e.status === 'done' ? '✓ Done' : '⏳ Pending'}</span></td>
-            <td class="action-btns">
-              <button class="btn btn-sm btn-edit" onclick="toggleStatus(${i})" title="Toggle status">✓</button>
-              <a href="https://wa.me/${(e.phone || '').replace(/\D/g, '')}" target="_blank" class="btn btn-sm btn-edit" title="WhatsApp">💬</a>
-              <button class="btn btn-sm btn-edit" onclick="openEnquiryModal(${i})" title="Edit">✏️</button>
-              <button class="btn btn-sm btn-danger" onclick="deleteEnquiry(${i})" title="Delete">✕</button>
-            </td>
-          </tr>`;
-      }).join('')}
-      </tbody></table>`;
+    ${list.map(e => `<tr>
+      <td style="color:var(--white);">${esc(e.name)}</td>
+      <td><a href="tel:${esc(e.phone)}" style="color:var(--gold-bright);">${esc(e.phone)}</a></td>
+      <td>${esc(e.service)}</td>
+      <td><span class="badge ${e.status === 'done' ? 'badge-green' : 'badge-gold'}">${e.status === 'done' ? '✓ Done' : '⏳ Pending'}</span></td>
+      <td class="action-btns">
+        <button class="btn btn-sm btn-edit" onclick="toggleEnquiryStatus('${esc(e._id)}', '${e.status === 'done' ? 'pending' : 'done'}')">✓</button>
+        <a href="https://wa.me/${(e.phone || '').replace(/\D/g, '')}" target="_blank" class="btn btn-sm btn-edit">💬</a>
+        <button class="btn btn-sm btn-danger" onclick="deleteEnquiry('${esc(e._id)}')">✕</button>
+      </td>
+    </tr>`).join('')}
+  </tbody></table>`;
+      elMobile.innerHTML = list.map(e => `
+    <div class="mobile-card">
+      <div class="mobile-card-header">
+        <div class="mobile-card-title">${esc(e.name)}</div>
+        <span class="badge ${e.status === 'done' ? 'badge-green' : 'badge-gold'}">${e.status === 'done' ? '✓ Done' : '⏳ Pending'}</span>
+      </div>
+      <dl class="mobile-card-body">
+        <dt>Phone</dt><dd>${esc(e.phone)}</dd>
+        <dt>Service</dt><dd>${esc(e.service)}</dd>
+      </dl>
+      <div class="mobile-card-actions">
+        <button class="btn btn-sm btn-edit" onclick="toggleEnquiryStatus('${esc(e._id)}', '${e.status === 'done' ? 'pending' : 'done'}')">Toggle</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteEnquiry('${esc(e._id)}')">Delete</button>
+      </div>
+    </div>
+  `).join('');
+    }
 
-      elMobile.innerHTML = list.map(e => {
-        const i = state.data.enquiries.indexOf(e);
-        return `<div class="mobile-card">
-          <div class="mobile-card-header">
-            <div class="mobile-card-title">${esc(e.name)}</div>
-            <span class="badge ${e.status === 'done' ? 'badge-green' : 'badge-gold'}">${e.status === 'done' ? '✓ Done' : '⏳ Pending'}</span>
-          </div>
-          <dl class="mobile-card-body">
-            <dt>Phone</dt><dd><a href="tel:${esc(e.phone)}" style="color:var(--gold-bright);">${esc(e.phone)}</a></dd>
-            <dt>Service</dt><dd>${esc(e.service)}</dd>
-            <dt>Message</dt><dd>${esc(e.message) || '—'}</dd>
-          </dl>
-          <div class="mobile-card-actions">
-            <button class="btn btn-sm btn-edit" onclick="toggleStatus(${i})">Toggle</button>
-            <a href="https://wa.me/${(e.phone || '').replace(/\D/g, '')}" target="_blank" class="btn btn-sm btn-edit">💬 WhatsApp</a>
-            <button class="btn btn-sm btn-edit" onclick="openEnquiryModal(${i})">Edit</button>
-            <button class="btn btn-sm btn-danger" onclick="deleteEnquiry(${i})">Delete</button>
-          </div>
-        </div>`;
-      }).join('');
-    }
-    function toggleStatus(i) {
-      state.data.enquiries[i].status = state.data.enquiries[i].status === 'done' ? 'pending' : 'done';
-      save(); renderEnquiries(); updateBadges(); toast('Status updated');
-    }
-    function deleteEnquiry(i) {
-      confirmAction('Delete Enquiry?', 'This will permanently remove this enquiry.', 'Delete', () => {
-        state.data.enquiries.splice(i, 1); save(); renderEnquiries(); updateBadges(); toast('Enquiry deleted');
+    function toggleEnquiryStatus(id, newStatus) {
+      DB.update('enquiries', id, { status: newStatus }).then(function () {
+        var e = AdminStore.state.enquiries.find(x => x._id === id);
+        if (e) e.status = newStatus;
+        renderEnquiries();
+        toast('Status updated');
       });
     }
-    function openEnquiryModal(i = null) {
-      state.editingIndex = i;
-      const e = i !== null ? state.data.enquiries[i] : { name: '', phone: '', service: '', message: '' };
-      document.getElementById('modal-content').innerHTML = `
-        <h3>${i !== null ? 'Edit' : 'Add'} Enquiry</h3>
-        <form onsubmit="submitEnquiry(event)">
-          <div class="form-row">
-            <div class="form-group"><label class="form-label">Name</label><input type="text" name="name" class="form-input" value="${esc(e.name)}" required></div>
-            <div class="form-group"><label class="form-label">Phone</label><input type="tel" name="phone" class="form-input" value="${esc(e.phone)}" required></div>
-          </div>
-          <div class="form-group"><label class="form-label">Service</label>
-            <select name="service" class="form-select">
-              ${getActiveServices().map(s => `<option ${s.title === e.service ? 'selected' : ''}>${esc(s.title)}</option>`).join('')}
-              <option ${e.service === 'Other' ? 'selected' : ''}>Other</option>
-            </select>
-          </div>
-          <div class="form-group"><label class="form-label">Message</label><textarea name="message" class="form-textarea">${esc(e.message)}</textarea></div>
-          <div style="display:flex;gap:12px;">
-            <button type="submit" class="btn btn-gold">${i !== null ? 'Save' : 'Add'}</button>
-            <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-          </div>
-        </form>`;
-      openModal();
-    }
-    function submitEnquiry(ev) {
-      ev.preventDefault();
-      const fd = new FormData(ev.target);
-      const item = {
-        name: fd.get('name'), phone: fd.get('phone'), service: fd.get('service'),
-        message: fd.get('message'), status: 'pending', date: new Date().toLocaleDateString('en-IN')
-      };
-      if (state.editingIndex !== null) {
-        item.status = state.data.enquiries[state.editingIndex].status;
-        item.date = state.data.enquiries[state.editingIndex].date;
-        state.data.enquiries[state.editingIndex] = item;
-      } else {
-        state.data.enquiries.push(item);
-      }
-      save(); closeModal(); renderEnquiries(); updateBadges(); toast('Enquiry saved');
+
+    function deleteEnquiry(id) {
+      confirmAction('Delete Enquiry?', 'This will permanently remove this enquiry.', 'Delete', function () {
+        DB.remove('enquiries', id).then(function () {
+          AdminStore.state.enquiries = AdminStore.state.enquiries.filter(x => x._id !== id);
+          renderEnquiries();
+          toast('Enquiry deleted');
+        });
+      });
     }
 
     /* ── SERVICES ── */
     function renderAdminServices() {
       const f = state.filters.services;
-      const cat = state.filters.svcCat;
-      const list = getActiveServices().filter(s =>
-        (!f || s.title.toLowerCase().includes(f) || (s.category || '').toLowerCase().includes(f)) &&
-        (!cat || s.category === cat)
+      const list = AdminStore.state.services.filter(s =>
+        !f || (s.title || '').toLowerCase().includes(f) || (s.category || '').toLowerCase().includes(f)
       );
       const el = document.getElementById('services-table');
       const elMobile = document.getElementById('services-mobile');
 
       if (list.length === 0) {
         const empty = `<div class="empty-state">
-          <div class="empty-state-icon">⚙️</div>
-          <div class="empty-state-title">No services found</div>
-          <div>Try adjusting filters or add a new service</div>
-          <div class="empty-state-cta"><button class="btn btn-gold btn-sm" onclick="openServiceModal()">+ Add Service</button></div>
-        </div>`;
-        el.innerHTML = empty;
-        elMobile.innerHTML = empty;
+      <div class="empty-state-icon">⚙️</div>
+      <div class="empty-state-title">No services in Firestore yet</div>
+      <div>Import from your hardcoded list, or add a new one</div>
+      <div class="empty-state-cta" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-gold btn-sm" onclick="importServices()">⬇ Import 13 Built-in Services</button>
+        <button class="btn btn-outline btn-sm" onclick="openServiceModal()">+ Add Service</button>
+      </div>
+    </div>`;
+        el.innerHTML = empty; elMobile.innerHTML = empty;
         return;
       }
 
       el.innerHTML = `<table><thead><tr><th>Icon</th><th>Title</th><th>Category</th><th>Price</th><th>Actions</th></tr></thead><tbody>
-        ${list.map(s => {
-        const isCustom = state.data.customServices.includes(s);
-        const idx = isCustom ? state.data.customServices.indexOf(s) : -1;
-        return `<tr>
-            <td style="font-size:1.4rem;">${esc(s.icon || '⚙️')}</td>
-            <td style="color:var(--white);font-weight:500;">${esc(s.title)}</td>
-            <td><span class="tag">${esc(s.category || 'digital')}</span></td>
-            <td style="color:var(--gold-bright);font-family:var(--font-mono);font-size:0.82rem;">${esc(s.price || '—')}</td>
-            <td class="action-btns">
-              ${s.id ? `<a href="service.html?id=${esc(s.id)}" target="_blank" class="btn btn-sm btn-edit">👁</a>` : ''}
-              <button class="btn btn-sm btn-edit" onclick='openServiceModal(${idx}, ${JSON.stringify(s).replace(/'/g, "&#39;")})'>✏️</button>
-              <button class="btn btn-sm btn-danger" onclick="deleteService(${idx}, '${esc(s.id || '')}')">✕</button>
-            </td>
-          </tr>`;
-      }).join('')}
-      </tbody></table>`;
-
-      elMobile.innerHTML = list.map(s => {
-        const isCustom = state.data.customServices.includes(s);
-        const idx = isCustom ? state.data.customServices.indexOf(s) : -1;
-        return `<div class="mobile-card">
-          <div class="mobile-card-header">
-            <div class="mobile-card-title">${esc(s.icon || '⚙️')} ${esc(s.title)}</div>
-            <span class="tag">${esc(s.category || 'digital')}</span>
-          </div>
-          <dl class="mobile-card-body">
-            <dt>Price</dt><dd style="color:var(--gold-bright);font-family:var(--font-mono);">${esc(s.price || '—')}</dd>
-            <dt>Description</dt><dd>${esc(s.desc || '—')}</dd>
-          </dl>
-          <div class="mobile-card-actions">
-            ${s.id ? `<a href="service.html?id=${esc(s.id)}" target="_blank" class="btn btn-sm btn-edit">👁 View</a>` : ''}
-            <button class="btn btn-sm btn-edit" onclick='openServiceModal(${idx}, ${JSON.stringify(s).replace(/'/g, "&#39;")})'>Edit</button>
-            <button class="btn btn-sm btn-danger" onclick="deleteService(${idx}, '${esc(s.id || '')}')">Delete</button>
-          </div>
-        </div>`;
-      }).join('');
+    ${list.map(s => `<tr>
+      <td style="font-size:1.4rem;">${esc(s.icon || '⚙️')}</td>
+      <td style="color:var(--white);font-weight:500;">${esc(s.title)}</td>
+      <td><span class="tag">${esc(s.category || 'digital')}</span></td>
+      <td style="color:var(--gold-bright);font-family:var(--font-mono);font-size:0.82rem;">${esc(s.price || '—')}</td>
+      <td class="action-btns">
+        ${s.id ? `<a href="service.html?id=${esc(s.id)}" target="_blank" class="btn btn-sm btn-edit">👁</a>` : ''}
+        <button class="btn btn-sm btn-edit" onclick="openServiceModal('${esc(s._id)}')">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteService('${esc(s._id)}')">✕</button>
+      </td>
+    </tr>`).join('')}
+  </tbody></table>`;
+      elMobile.innerHTML = list.map(s => `
+    <div class="mobile-card">
+      <div class="mobile-card-header">
+        <div class="mobile-card-title">${esc(s.icon || '⚙️')} ${esc(s.title)}</div>
+        <span class="tag">${esc(s.category || 'digital')}</span>
+      </div>
+      <dl class="mobile-card-body">
+        <dt>Price</dt><dd style="color:var(--gold-bright);">${esc(s.price || '—')}</dd>
+        <dt>Description</dt><dd>${esc(s.desc || '—')}</dd>
+      </dl>
+      <div class="mobile-card-actions">
+        <button class="btn btn-sm btn-edit" onclick="openServiceModal('${esc(s._id)}')">Edit</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteService('${esc(s._id)}')">Delete</button>
+      </div>
+    </div>
+  `).join('');
     }
-    function openServiceModal(idx = null, svc = null) {
-      state.editingIndex = idx;
-      const s = svc || { id: '', icon: '⚙️', title: '', desc: '', price: '', category: 'digital', features: [], detail: '' };
+
+    function importServices() {
+      if (!confirm('Import all 13 built-in services into Firestore? Existing services will not be overwritten.')) return;
+      toast('Importing...', 'success');
+      AdminStore.importFromMainJS().then(function (result) {
+        toast(`Imported ${result.services} services, ${result.testimonials} testimonials`);
+        renderAdminServices();
+        renderDashboard();
+      }).catch(function (e) {
+        toast('Import failed: ' + e.message, 'error');
+      });
+    }
+
+    function openServiceModal(id) {
+      var s = { id: '', icon: '⚙️', title: '', desc: '', price: '', category: 'digital', features: [], detail: '' };
+      if (id) {
+        s = AdminStore.state.services.find(x => x._id === id) || s;
+      }
+      state.editingIndex = id || null;
+
       document.getElementById('modal-content').innerHTML = `
-        <h3>${idx !== null ? 'Edit' : 'Add'} Service</h3>
-        <form onsubmit="submitService(event)">
-          <div class="form-row">
-            <div class="form-group"><label class="form-label">Icon (emoji)</label><input type="text" name="icon" class="form-input" value="${esc(s.icon)}" maxlength="4"></div>
-            <div class="form-group"><label class="form-label">Price</label><input type="text" name="price" class="form-input" value="${esc(s.price)}" placeholder="₹499"></div>
-          </div>
-          <div class="form-group"><label class="form-label">Title</label><input type="text" name="title" class="form-input" value="${esc(s.title)}" required></div>
-          <div class="form-group"><label class="form-label">Short Description</label><input type="text" name="desc" class="form-input" value="${esc(s.desc)}"></div>
-          <div class="form-group"><label class="form-label">Category</label>
-            <select name="category" class="form-select">
-              ${['digital', 'creative', 'government', 'education', 'design'].map(c => `<option ${c === s.category ? 'selected' : ''}>${c}</option>`).join('')}
-            </select>
-          </div>
-          <div class="form-group"><label class="form-label">Features (one per line)</label><textarea name="features" class="form-textarea">${esc((s.features || []).join('\n'))}</textarea></div>
-          <div class="form-group"><label class="form-label">Detailed Description</label><textarea name="detail" class="form-textarea">${esc(s.detail)}</textarea></div>
-          <div style="display:flex;gap:12px;">
-            <button type="submit" class="btn btn-gold">${idx !== null ? 'Save' : 'Add'}</button>
-            <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-          </div>
-        </form>`;
+    <h3>${id ? 'Edit' : 'Add'} Service</h3>
+    <form onsubmit="submitService(event)">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Icon (emoji)</label><input type="text" name="icon" class="form-input" value="${esc(s.icon)}" maxlength="4"></div>
+        <div class="form-group"><label class="form-label">Price</label><input type="text" name="price" class="form-input" value="${esc(s.price)}" placeholder="₹499"></div>
+      </div>
+      <div class="form-group"><label class="form-label">Title</label><input type="text" name="title" class="form-input" value="${esc(s.title)}" required></div>
+      <div class="form-group"><label class="form-label">Short Description</label><input type="text" name="desc" class="form-input" value="${esc(s.desc)}"></div>
+      <div class="form-group"><label class="form-label">Category</label>
+        <select name="category" class="form-select">
+          ${['digital', 'creative', 'government', 'education', 'design'].map(c => `<option ${c === s.category ? 'selected' : ''}>${c}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Features (one per line)</label><textarea name="features" class="form-textarea">${esc((s.features || []).join('\n'))}</textarea></div>
+      <div class="form-group"><label class="form-label">Detailed Description</label><textarea name="detail" class="form-textarea">${esc(s.detail)}</textarea></div>
+      <div style="display:flex;gap:12px;">
+        <button type="submit" class="btn btn-gold">${id ? 'Save' : 'Add'}</button>
+        <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      </div>
+    </form>`;
       openModal();
     }
+
     function submitService(ev) {
       ev.preventDefault();
       const fd = new FormData(ev.target);
@@ -1638,156 +1545,32 @@
         features: (fd.get('features') || '').split('\n').filter(Boolean),
         detail: fd.get('detail')
       };
-      if (state.editingIndex !== null) {
-        state.data.customServices[state.editingIndex] = item;
-      } else {
-        const existsBuiltIn = (typeof SERVICES !== 'undefined') && SERVICES.some(s => s.id === item.id);
-        if (existsBuiltIn) {
-          state.data.deletedServices = state.data.deletedServices.filter(id => id !== item.id);
-          toast('Built-in service restored');
-        } else {
-          state.data.customServices.push(item);
-        }
-      }
-      save(); closeModal(); renderAdminServices(); toast('Service saved');
-    }
-    function deleteService(customIdx, builtInId) {
-      confirmAction('Delete Service?', 'This service will be removed from your website.', 'Delete', () => {
-        if (customIdx >= 0) {
-          state.data.customServices.splice(customIdx, 1);
-        } else if (builtInId) {
-          state.data.deletedServices.push(builtInId);
-        }
-        save(); renderAdminServices(); toast('Service deleted');
+      var p = state.editingIndex
+        ? AdminStore.updateService(state.editingIndex, item)
+        : AdminStore.addService(item);
+
+      p.then(function () {
+        closeModal();
+        renderAdminServices();
+        toast('Service saved');
+      }).catch(function (e) {
+        toast('Error: ' + e.message, 'error');
       });
     }
 
-    /* ── GALLERY ── */
-    function renderAdminGallery() {
-      const f = state.filters.gallery;
-      const list = state.data.gallery.filter(g =>
-        !f || (g.title || '').toLowerCase().includes(f) || (g.cat || '').toLowerCase().includes(f)
-      );
-      const el = document.getElementById('gallery-table');
-      const elMobile = document.getElementById('gallery-mobile');
-
-      if (list.length === 0) {
-        const empty = `<div class="empty-state">
-          <div class="empty-state-icon">🖼️</div>
-          <div class="empty-state-title">No portfolio items yet</div>
-          <div>Add your first project to showcase your work</div>
-          <div class="empty-state-cta"><button class="btn btn-gold btn-sm" onclick="openGalleryModal()">+ Add Item</button></div>
-        </div>`;
-        el.innerHTML = empty;
-        elMobile.innerHTML = empty;
-        return;
-      }
-
-      el.innerHTML = `<table><thead><tr><th>Preview</th><th>Title</th><th>Category</th><th>Actions</th></tr></thead><tbody>
-        ${list.map(g => {
-        const i = state.data.gallery.indexOf(g);
-        const preview = g.img
-          ? (g.img.startsWith('data:video') ? `<video src="${esc(g.img)}" muted style="width:60px;height:60px;object-fit:cover;border-radius:8px;"></video>` : `<img src="${esc(g.img)}" style="width:60px;height:60px;object-fit:cover;border-radius:8px;">`)
-          : '<span style="color:var(--white-60);font-size:0.75rem;">No media</span>';
-        return `<tr>
-            <td>${preview}</td>
-            <td style="color:var(--white);">${esc(g.title)}</td>
-            <td><span class="tag">${esc(g.cat)}</span></td>
-            <td class="action-btns">
-              <button class="btn btn-sm btn-edit" onclick="openGalleryModal(${i})">✏️</button>
-              <button class="btn btn-sm btn-danger" onclick="deleteGallery(${i})">✕</button>
-            </td>
-          </tr>`;
-      }).join('')}
-      </tbody></table>`;
-
-      elMobile.innerHTML = list.map(g => {
-        const i = state.data.gallery.indexOf(g);
-        const preview = g.img
-          ? (g.img.startsWith('data:video') ? `<video src="${esc(g.img)}" muted style="width:100%;height:180px;object-fit:cover;border-radius:8px;"></video>` : `<img src="${esc(g.img)}" style="width:100%;height:180px;object-fit:cover;border-radius:8px;">`)
-          : '';
-        return `<div class="mobile-card">
-          ${preview}
-          <div class="mobile-card-header" style="margin-top:12px;">
-            <div class="mobile-card-title">${esc(g.title)}</div>
-          </div>
-          <div style="margin-bottom:12px;"><span class="tag">${esc(g.cat)}</span></div>
-          <div class="mobile-card-actions">
-            <button class="btn btn-sm btn-edit" onclick="openGalleryModal(${i})">Edit</button>
-            <button class="btn btn-sm btn-danger" onclick="deleteGallery(${i})">Delete</button>
-          </div>
-        </div>`;
-      }).join('');
-    }
-    function openGalleryModal(i = null) {
-      state.editingIndex = i;
-      const g = i !== null ? state.data.gallery[i] : { title: '', cat: 'Website Design', img: '' };
-      document.getElementById('modal-content').innerHTML = `
-        <h3>${i !== null ? 'Edit' : 'Add'} Portfolio Item</h3>
-        <form onsubmit="submitGallery(event)">
-          <div class="form-group"><label class="form-label">Title</label><input type="text" name="title" class="form-input" value="${esc(g.title)}" required></div>
-          <div class="form-group"><label class="form-label">Category</label>
-            <select name="cat" class="form-select">
-              ${['Website Design', 'Invitation Video', 'Resume / CV', 'Business Branding', 'Graphic Design', 'Certificate'].map(c => `<option ${c === g.cat ? 'selected' : ''}>${c}</option>`).join('')}
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Image or Video (max 500KB img / 3MB video)</label>
-            <div class="media-preview" id="gallery-media-preview" onclick="document.getElementById('gallery-media-input').click()">
-              ${renderMediaPreview(g.img)}
-            </div>
-            <input type="file" accept="image/*,video/*" id="gallery-media-input" style="display:none;" onchange="handleMediaUpload(event)">
-            <input type="hidden" name="img" id="gallery-media-data" value="${esc(g.img)}">
-          </div>
-          <div style="display:flex;gap:12px;">
-            <button type="submit" class="btn btn-gold">${i !== null ? 'Save' : 'Add'}</button>
-            <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-          </div>
-        </form>`;
-      openModal();
-    }
-    function renderMediaPreview(data) {
-      if (!data) return '📷 Click to upload image or video';
-      if (data.startsWith('data:video')) return `<video src="${esc(data)}" controls muted style="width:100%;"></video><button type="button" class="remove-media" onclick="removeMedia(event)">✕</button>`;
-      return `<img src="${esc(data)}"><button type="button" class="remove-media" onclick="removeMedia(event)">✕</button>`;
-    }
-    function removeMedia(ev) {
-      ev.stopPropagation();
-      document.getElementById('gallery-media-data').value = '';
-      document.getElementById('gallery-media-preview').innerHTML = '📷 Click to upload image or video';
-    }
-    function handleMediaUpload(ev) {
-      const file = ev.target.files[0];
-      if (!file) return;
-      const isVideo = file.type.startsWith('video');
-      const maxSize = isVideo ? 3 * 1024 * 1024 : 500 * 1024;
-      const maxLabel = isVideo ? '3MB' : '500KB';
-      if (file.size > maxSize) { toast(`File too large. Max ${maxLabel}.`, 'error'); return; }
-      const reader = new FileReader();
-      reader.onload = e => {
-        document.getElementById('gallery-media-data').value = e.target.result;
-        document.getElementById('gallery-media-preview').innerHTML = renderMediaPreview(e.target.result);
-      };
-      reader.readAsDataURL(file);
-    }
-    function submitGallery(ev) {
-      ev.preventDefault();
-      const fd = new FormData(ev.target);
-      const item = { title: fd.get('title'), cat: fd.get('cat'), img: fd.get('img') || '', status: 'published' };
-      if (state.editingIndex !== null) state.data.gallery[state.editingIndex] = item;
-      else state.data.gallery.push(item);
-      save(); closeModal(); renderAdminGallery(); toast('Portfolio item saved');
-    }
-    function deleteGallery(i) {
-      confirmAction('Delete Portfolio Item?', 'This will remove it from your portfolio.', 'Delete', () => {
-        state.data.gallery.splice(i, 1); save(); renderAdminGallery(); toast('Portfolio item deleted');
+    function deleteService(id) {
+      confirmAction('Delete Service?', 'This will remove the service from Firestore and your live website.', 'Delete', function () {
+        AdminStore.deleteService(id).then(function () {
+          renderAdminServices();
+          toast('Service deleted');
+        });
       });
     }
 
     /* ── TESTIMONIALS ── */
     function renderAdminTestimonials() {
       const f = state.filters.testimonials;
-      const list = state.data.customTestimonials.filter(t =>
+      const list = AdminStore.state.testimonials.filter(t =>
         !f || (t.name || '').toLowerCase().includes(f) || (t.text || '').toLowerCase().includes(f)
       );
       const el = document.getElementById('testimonials-table');
@@ -1795,101 +1578,216 @@
 
       if (list.length === 0) {
         const empty = `<div class="empty-state">
-          <div class="empty-state-icon">⭐</div>
-          <div class="empty-state-title">No custom testimonials yet</div>
-          <div>Add your first client review</div>
-          <div class="empty-state-cta"><button class="btn btn-gold btn-sm" onclick="openTestimonialModal()">+ Add Review</button></div>
-        </div>`;
-        el.innerHTML = empty;
-        elMobile.innerHTML = empty;
+      <div class="empty-state-icon">⭐</div>
+      <div class="empty-state-title">No testimonials yet</div>
+      <div class="empty-state-cta"><button class="btn btn-gold btn-sm" onclick="openTestimonialModal()">+ Add Review</button></div>
+    </div>`;
+        el.innerHTML = empty; elMobile.innerHTML = empty;
         return;
       }
-
       el.innerHTML = `<table><thead><tr><th>Name</th><th>Role</th><th>Stars</th><th>Preview</th><th>Actions</th></tr></thead><tbody>
-        ${list.map(t => {
-        const i = state.data.customTestimonials.indexOf(t);
-        return `<tr>
-            <td style="color:var(--white);font-weight:500;">${esc(t.name)}</td>
-            <td>${esc(t.role)}</td>
-            <td style="color:var(--gold-bright);">${'★'.repeat(t.stars || 5)}</td>
-            <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-style:italic;" title="${esc(t.text)}">${esc(t.text)}</td>
-            <td class="action-btns">
-              <button class="btn btn-sm btn-edit" onclick="openTestimonialModal(${i})">✏️</button>
-              <button class="btn btn-sm btn-danger" onclick="deleteTestimonial(${i})">✕</button>
-            </td>
-          </tr>`;
-      }).join('')}
-      </tbody></table>`;
-
-      elMobile.innerHTML = list.map(t => {
-        const i = state.data.customTestimonials.indexOf(t);
-        return `<div class="mobile-card">
-          <div class="mobile-card-header">
-            <div class="mobile-card-title">${esc(t.name)}</div>
-            <div style="color:var(--gold-bright);">${'★'.repeat(t.stars || 5)}</div>
-          </div>
-          <div style="font-size:0.78rem;color:var(--white-60);margin-bottom:10px;">${esc(t.role)}</div>
-          <div style="font-size:0.85rem;color:var(--white-90);font-style:italic;line-height:1.5;margin-bottom:14px;">"${esc(t.text)}"</div>
-          <div class="mobile-card-actions">
-            <button class="btn btn-sm btn-edit" onclick="openTestimonialModal(${i})">Edit</button>
-            <button class="btn btn-sm btn-danger" onclick="deleteTestimonial(${i})">Delete</button>
-          </div>
-        </div>`;
-      }).join('');
+    ${list.map(t => `<tr>
+      <td style="color:var(--white);">${esc(t.name)}</td>
+      <td>${esc(t.role)}</td>
+      <td style="color:var(--gold-bright);">${'★'.repeat(t.stars || 5)}</td>
+      <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-style:italic;">${esc(t.text)}</td>
+      <td class="action-btns">
+        <button class="btn btn-sm btn-edit" onclick="openTestimonialModal('${esc(t._id)}')">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteTestimonial('${esc(t._id)}')">✕</button>
+      </td>
+    </tr>`).join('')}
+  </tbody></table>`;
+      elMobile.innerHTML = list.map(t => `
+    <div class="mobile-card">
+      <div class="mobile-card-header">
+        <div class="mobile-card-title">${esc(t.name)}</div>
+        <div style="color:var(--gold-bright);">${'★'.repeat(t.stars || 5)}</div>
+      </div>
+      <div style="font-size:0.78rem;color:var(--white-60);margin-bottom:8px;">${esc(t.role)}</div>
+      <div style="font-size:0.85rem;color:var(--white-90);font-style:italic;margin-bottom:14px;">"${esc(t.text)}"</div>
+      <div class="mobile-card-actions">
+        <button class="btn btn-sm btn-edit" onclick="openTestimonialModal('${esc(t._id)}')">Edit</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteTestimonial('${esc(t._id)}')">Delete</button>
+      </div>
+    </div>
+  `).join('');
     }
-    function openTestimonialModal(i = null) {
-      state.editingIndex = i;
-      const t = i !== null ? state.data.customTestimonials[i] : { name: '', initials: '', role: '', text: '', stars: 5 };
+
+    function openTestimonialModal(id) {
+      var t = { name: '', initials: '', role: '', text: '', stars: 5 };
+      if (id) t = AdminStore.state.testimonials.find(x => x._id === id) || t;
+      state.editingIndex = id || null;
+
       document.getElementById('modal-content').innerHTML = `
-        <h3>${i !== null ? 'Edit' : 'Add'} Testimonial</h3>
-        <form onsubmit="submitTestimonial(event)">
-          <div class="form-row">
-            <div class="form-group"><label class="form-label">Client Name</label><input type="text" name="name" class="form-input" value="${esc(t.name)}" required></div>
-            <div class="form-group"><label class="form-label">Initials</label><input type="text" name="initials" class="form-input" value="${esc(t.initials)}" maxlength="2" required></div>
-          </div>
-          <div class="form-group"><label class="form-label">Role / Location</label><input type="text" name="role" class="form-input" value="${esc(t.role)}" placeholder="e.g. Student, Jabalpur"></div>
-          <div class="form-group"><label class="form-label">Review Text</label><textarea name="text" class="form-textarea" required>${esc(t.text)}</textarea></div>
-          <div class="form-group"><label class="form-label">Stars</label>
-            <select name="stars" class="form-select">
-              ${[5, 4, 3, 2, 1].map(n => `<option value="${n}" ${n === t.stars ? 'selected' : ''}>${'★'.repeat(n)} (${n})</option>`).join('')}
-            </select>
-          </div>
-          <div style="display:flex;gap:12px;">
-            <button type="submit" class="btn btn-gold">${i !== null ? 'Save' : 'Add'}</button>
-            <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-          </div>
-        </form>`;
+    <h3>${id ? 'Edit' : 'Add'} Testimonial</h3>
+    <form onsubmit="submitTestimonial(event)">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Client Name</label><input type="text" name="name" class="form-input" value="${esc(t.name)}" required></div>
+        <div class="form-group"><label class="form-label">Initials</label><input type="text" name="initials" class="form-input" value="${esc(t.initials)}" maxlength="2" required></div>
+      </div>
+      <div class="form-group"><label class="form-label">Role / Location</label><input type="text" name="role" class="form-input" value="${esc(t.role)}"></div>
+      <div class="form-group"><label class="form-label">Review Text</label><textarea name="text" class="form-textarea" required>${esc(t.text)}</textarea></div>
+      <div class="form-group"><label class="form-label">Stars</label>
+        <select name="stars" class="form-select">
+          ${[5, 4, 3, 2, 1].map(n => `<option value="${n}" ${n === t.stars ? 'selected' : ''}>${'★'.repeat(n)} (${n})</option>`).join('')}
+        </select>
+      </div>
+      <div style="display:flex;gap:12px;">
+        <button type="submit" class="btn btn-gold">${id ? 'Save' : 'Add'}</button>
+        <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      </div>
+    </form>`;
       openModal();
     }
+
     function submitTestimonial(ev) {
       ev.preventDefault();
       const fd = new FormData(ev.target);
       const item = {
-        name: fd.get('name'), initials: fd.get('initials').toUpperCase(),
-        role: fd.get('role'), text: fd.get('text'), stars: parseInt(fd.get('stars'))
+        name: fd.get('name'),
+        initials: fd.get('initials').toUpperCase(),
+        role: fd.get('role'),
+        text: fd.get('text'),
+        stars: parseInt(fd.get('stars'))
       };
-      if (state.editingIndex !== null) state.data.customTestimonials[state.editingIndex] = item;
-      else state.data.customTestimonials.push(item);
-      save(); closeModal(); renderAdminTestimonials(); toast('Testimonial saved');
+      var p = state.editingIndex
+        ? AdminStore.updateTestimonial(state.editingIndex, item)
+        : AdminStore.addTestimonial(item);
+      p.then(function () {
+        closeModal();
+        renderAdminTestimonials();
+        toast('Testimonial saved');
+      }).catch(function (e) {
+        toast('Error: ' + e.message, 'error');
+      });
     }
-    function deleteTestimonial(i) {
-      confirmAction('Delete Testimonial?', 'This will remove this review from your site.', 'Delete', () => {
-        state.data.customTestimonials.splice(i, 1); save(); renderAdminTestimonials(); toast('Testimonial deleted');
+
+    function deleteTestimonial(id) {
+      confirmAction('Delete Testimonial?', 'This will remove this review from your site.', 'Delete', function () {
+        AdminStore.deleteTestimonial(id).then(function () {
+          renderAdminTestimonials();
+          toast('Testimonial deleted');
+        });
+      });
+    }
+
+    /* ── PORTFOLIO (minimal) ── */
+    function renderAdminGallery() {
+      const el = document.getElementById('gallery-table');
+      const elMobile = document.getElementById('gallery-mobile');
+      const list = AdminStore.state.portfolio;
+      if (list.length === 0) {
+        const empty = `<div class="empty-state">
+      <div class="empty-state-icon">🖼️</div>
+      <div class="empty-state-title">No portfolio items yet</div>
+      <div class="empty-state-cta"><button class="btn btn-gold btn-sm" onclick="openGalleryModal()">+ Add Item</button></div>
+    </div>`;
+        el.innerHTML = empty; elMobile.innerHTML = empty;
+        return;
+      }
+      el.innerHTML = `<table><thead><tr><th>Preview</th><th>Title</th><th>Category</th><th>Actions</th></tr></thead><tbody>
+    ${list.map(g => `<tr>
+      <td>${g.img ? `<img src="${esc(g.img)}" style="width:60px;height:60px;object-fit:cover;border-radius:8px;">` : '—'}</td>
+      <td style="color:var(--white);">${esc(g.title)}</td>
+      <td><span class="tag">${esc(g.cat)}</span></td>
+      <td class="action-btns">
+        <button class="btn btn-sm btn-edit" onclick="openGalleryModal('${esc(g._id)}')">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteGalleryItem('${esc(g._id)}')">✕</button>
+      </td>
+    </tr>`).join('')}
+  </tbody></table>`;
+      elMobile.innerHTML = list.map(g => `
+    <div class="mobile-card">
+      ${g.img ? `<img src="${esc(g.img)}" style="width:100%;height:180px;object-fit:cover;border-radius:8px;margin-bottom:12px;">` : ''}
+      <div class="mobile-card-title">${esc(g.title)}</div>
+      <div style="margin:8px 0;"><span class="tag">${esc(g.cat)}</span></div>
+      <div class="mobile-card-actions">
+        <button class="btn btn-sm btn-edit" onclick="openGalleryModal('${esc(g._id)}')">Edit</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteGalleryItem('${esc(g._id)}')">Delete</button>
+      </div>
+    </div>
+  `).join('');
+    }
+
+    function openGalleryModal(id) {
+      var g = { title: '', cat: 'Website Design', img: '' };
+      if (id) g = AdminStore.state.portfolio.find(x => x._id === id) || g;
+      state.editingIndex = id || null;
+      document.getElementById('modal-content').innerHTML = `
+    <h3>${id ? 'Edit' : 'Add'} Portfolio Item</h3>
+    <form onsubmit="submitGallery(event)">
+      <div class="form-group"><label class="form-label">Title</label><input type="text" name="title" class="form-input" value="${esc(g.title)}" required></div>
+      <div class="form-group"><label class="form-label">Category</label>
+        <select name="cat" class="form-select">
+          ${['Website Design', 'Invitation Video', 'Resume / CV', 'Business Branding', 'Graphic Design', 'Certificate'].map(c => `<option ${c === g.cat ? 'selected' : ''}>${c}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Image (max 500KB)</label>
+        <div class="media-preview" id="gallery-media-preview" onclick="document.getElementById('gallery-media-input').click()">
+          ${g.img ? `<img src="${esc(g.img)}">` : '📷 Click to upload'}
+        </div>
+        <input type="file" accept="image/*" id="gallery-media-input" style="display:none;" onchange="handleImageUpload(event)">
+        <input type="hidden" name="img" id="gallery-media-data" value="${esc(g.img)}">
+      </div>
+      <div style="display:flex;gap:12px;">
+        <button type="submit" class="btn btn-gold">${id ? 'Save' : 'Add'}</button>
+        <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      </div>
+    </form>`;
+      openModal();
+    }
+
+    function handleImageUpload(ev) {
+      const file = ev.target.files[0];
+      if (!file) return;
+      if (file.size > 500 * 1024) { toast('Image too large. Max 500KB.', 'error'); return; }
+      const reader = new FileReader();
+      reader.onload = e => {
+        document.getElementById('gallery-media-data').value = e.target.result;
+        document.getElementById('gallery-media-preview').innerHTML = `<img src="${e.target.result}">`;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function submitGallery(ev) {
+      ev.preventDefault();
+      const fd = new FormData(ev.target);
+      const item = { title: fd.get('title'), cat: fd.get('cat'), img: fd.get('img') || '' };
+      var p = state.editingIndex
+        ? AdminStore.updatePortfolio(state.editingIndex, item)
+        : AdminStore.addPortfolio(item);
+      p.then(function () {
+        closeModal();
+        renderAdminGallery();
+        toast('Portfolio saved');
+      }).catch(function (e) {
+        toast('Error: ' + e.message, 'error');
+      });
+    }
+
+    function deleteGalleryItem(id) {
+      confirmAction('Delete Portfolio Item?', 'This will remove it from your portfolio.', 'Delete', function () {
+        AdminStore.deletePortfolio(id).then(function () {
+          renderAdminGallery();
+          toast('Deleted');
+        });
       });
     }
 
     /* ── SETTINGS ── */
     function renderSettings() {
-      const s = state.data.settings;
-      document.getElementById('setting-name').value = s.name;
-      document.getElementById('setting-wa').value = s.wa;
-      document.getElementById('setting-phone').value = s.phone;
-      document.getElementById('setting-email').value = s.email;
-      document.getElementById('setting-insta').value = s.insta;
-      document.getElementById('setting-address').value = s.address;
+      const s = AdminStore.state.settings || {};
+      document.getElementById('setting-name').value = s.name || 'Azis Digital Hub';
+      document.getElementById('setting-wa').value = s.wa || '+91 9685325881';
+      document.getElementById('setting-phone').value = s.phone || '+91 9685325881';
+      document.getElementById('setting-email').value = s.email || 'azisinvites@gmail.com';
+      document.getElementById('setting-insta').value = s.insta || '';
+      document.getElementById('setting-address').value = s.address || '';
     }
+
     function saveSettings() {
-      state.data.settings = {
+      var data = {
         name: document.getElementById('setting-name').value,
         wa: document.getElementById('setting-wa').value,
         phone: document.getElementById('setting-phone').value,
@@ -1897,71 +1795,14 @@
         insta: document.getElementById('setting-insta').value,
         address: document.getElementById('setting-address').value
       };
-      save(); toast('Settings saved');
-    }
-    function saveNewPassword() {
-      const p = document.getElementById('setting-new-pass').value;
-      if (!p || p.length < 4) { toast('Password too short (min 4 chars)', 'error'); return; }
-      localStorage.setItem(CONFIG.passwordKey, p);
-      document.getElementById('setting-new-pass').value = '';
-      toast('Password updated');
-    }
-
-    /* ── BACKUP ── */
-    function exportData() {
-      const blob = new Blob([JSON.stringify(state.data, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `azis-admin-backup-${new Date().toISOString().slice(0, 10)}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-      toast('Backup downloaded');
-    }
-    function exportCSV() {
-      let csv = 'Type,Name,Phone/Service,Details,Status\n';
-      state.data.enquiries.forEach(e => {
-        csv += `Enquiry,"${e.name}","${e.phone}","${(e.service || '')} — ${(e.message || '').replace(/"/g, '""')}","${e.status}"\n`;
-      });
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `azis-enquiries-${new Date().toISOString().slice(0, 10)}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
-      toast('CSV exported');
-    }
-    function importData(ev) {
-      const file = ev.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = e => {
-        try {
-          const parsed = JSON.parse(e.target.result);
-          state.data = { ...state.data, ...parsed };
-          save();
-          toast('Data imported');
-          showSection('dashboard');
-        } catch (err) {
-          toast('Invalid backup file', 'error');
-        }
-      };
-      reader.readAsText(file);
-    }
-    function confirmReset() {
-      confirmAction('Reset All Data?', 'This will delete ALL enquiries, custom services, portfolio, and testimonials. Cannot be undone.', 'Reset Everything', () => {
-        localStorage.removeItem(CONFIG.dataKey);
-        state.data = {
-          enquiries: [], customServices: [], deletedServices: [], gallery: [],
-          customTestimonials: [], deletedTestimonials: [],
-          settings: { name: 'Azis Digital Hub', wa: '+91 9685325881', phone: '+91 9685325881', email: 'azisinvites@gmail.com', insta: '', address: '' }
-        };
-        save(); showSection('dashboard'); toast('All data reset');
+      AdminStore.saveSettings(data).then(function () {
+        toast('Settings saved to Firestore');
+      }).catch(function (e) {
+        toast('Error: ' + e.message, 'error');
       });
     }
 
-    /* ── MODAL HELPERS ── */
+    /* ── MODALS ── */
     function openModal() {
       document.getElementById('modal-overlay').classList.add('open');
     }
@@ -1972,28 +1813,32 @@
       }
     }
     document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') {
-        closeModal();
-        closeConfirm();
-        closeSidebar();
-      }
+      if (e.key === 'Escape') { closeModal(); closeConfirm(); closeSidebar(); }
     });
 
     /* ── INIT ── */
-    function init() {
-      loadData();
+    function initAdmin() {
       updateClock(); setInterval(updateClock, 1000);
-      renderDashboard();
-      updateBadges();
+      AdminStore.loadAll().then(function () {
+        renderDashboard();
+        console.log('[admin] Ready');
+      }).catch(function (e) {
+        console.error('[admin] Load failed:', e);
+        toast('Failed to load data: ' + e.message, 'error');
+      });
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', function () {
       checkSession();
       document.getElementById('login-pass').addEventListener('keydown', e => {
         if (e.key === 'Enter') attemptLogin();
       });
+      document.getElementById('login-email') && document.getElementById('login-email').addEventListener('keydown', e => {
+        if (e.key === 'Enter') attemptLogin();
+      });
     });
   </script>
+
 </body>
 
 </html>

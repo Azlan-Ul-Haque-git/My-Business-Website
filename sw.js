@@ -3,19 +3,22 @@
    Offline-first caching strategy
    ============================================ */
 
-const CACHE_NAME = 'azis-digital-hub-v1';
+const CACHE_NAME = 'azis-v2-firestore';
 
 const STATIC_ASSETS = [
-  '/',
   '/index.html',
   '/catalogue.html',
   '/portfolio.html',
   '/contact.html',
+  '/templates.html',
   '/service.html',
-  '/admin.html',
   '/css/style.css',
   '/js/main.js',
-  '/manifest.json'
+  '/js/firebase-config.js',
+  '/js/db.js',
+  '/js/firestore-data.js',
+  '/js/cookie-consent.js',
+  '/js/form.js'
 ];
 
 /* ── INSTALL: cache core assets ── */

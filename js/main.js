@@ -3,7 +3,7 @@
    ============================================ */
 
 /* ── DATA ── */
-const SERVICES = [
+let SERVICES = [
   {
     id: 'website-design',
     icon: '🌐',
@@ -136,7 +136,7 @@ const SERVICES = [
   }
 ];
 
-const TESTIMONIALS = [
+let TESTIMONIALS = [
   {
     text: 'The wedding invitation video was absolutely stunning. All our relatives were asking who made it. Delivery was in 12 hours!',
     name: 'Priya Sharma',
@@ -181,7 +181,7 @@ const TESTIMONIALS = [
   }
 ];
 
-const FAQS = [
+let FAQS = [
   {
     q: 'How do I place an order?',
     a: 'Simply send us a WhatsApp message or fill the contact form. Share your requirements and we\'ll get started right away — most orders are processed within 24 hours.'
@@ -222,24 +222,27 @@ function initNav() {
   const toggle = $('.nav-toggle');
   const mobileMenu = $('.mobile-menu');
 
+  // Skip if this page has no navbar (e.g., admin.html)
+  if (!navbar) return;
+
   window.addEventListener('scroll', () => {
-    navbar.classList.toggle('scrolled', window.scrollY > 20);
+    if (navbar) navbar.classList.toggle('scrolled', window.scrollY > 20);
   }, { passive: true });
 
-  if (toggle) {
+  if (toggle && mobileMenu) {
     toggle.addEventListener('click', () => {
       mobileMenu.classList.toggle('open');
       const spans = $$('span', toggle);
       const isOpen = mobileMenu.classList.contains('open');
       spans[0].style.transform = isOpen ? 'rotate(45deg) translate(5px, 5px)' : '';
-      spans[1].style.opacity  = isOpen ? '0' : '1';
+      spans[1].style.opacity = isOpen ? '0' : '1';
       spans[2].style.transform = isOpen ? 'rotate(-45deg) translate(5px, -5px)' : '';
     });
   }
 
   $$('.mobile-menu a').forEach(a => {
     a.addEventListener('click', () => {
-      mobileMenu.classList.remove('open');
+      if (mobileMenu) mobileMenu.classList.remove('open');
     });
   });
 }
@@ -403,11 +406,11 @@ function renderServiceDetail() {
   const breadcrumb = $('#service-breadcrumb');
   const waLink = $$('.wa-service-link');
 
-  if (icon)      icon.textContent = service.icon;
-  if (title)     title.textContent = service.title;
-  if (desc)      desc.textContent = service.desc;
-  if (price)     price.textContent = service.price;
-  if (detail)    detail.textContent = service.detail;
+  if (icon) icon.textContent = service.icon;
+  if (title) title.textContent = service.title;
+  if (desc) desc.textContent = service.desc;
+  if (price) price.textContent = service.price;
+  if (detail) detail.textContent = service.detail;
   if (breadcrumb) breadcrumb.textContent = service.title;
 
   if (features) {
@@ -431,10 +434,10 @@ function initContactForm() {
   if (!form) return;
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    const name    = form.querySelector('[name="name"]').value;
+    const name = form.querySelector('[name="name"]').value;
     const service = form.querySelector('[name="service"]').value;
     const message = form.querySelector('[name="message"]').value;
-    const phone   = form.querySelector('[name="phone"]').value;
+    const phone = form.querySelector('[name="phone"]').value;
 
     const text = encodeURIComponent(
       `Hello! I'm ${name} (${phone}).\n\nService interested in: ${service}\n\nMessage: ${message}`
@@ -510,6 +513,69 @@ document.addEventListener('DOMContentLoaded', () => {
 /* ── SERVICE WORKER REGISTRATION ── */
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {});
+    navigator.serviceWorker.register('/sw.js').catch(() => { });
   });
 }
+
+/* ── EXPOSE FOR FIRESTORE OVERRIDE ── */
+window.SERVICES = SERVICES;
+window.TESTIMONIALS = TESTIMONIALS;
+window.FAQS = FAQS;
+
+window.renderServices = renderHomeServices;
+window.renderAllServices = renderAllServices;
+window.renderTestimonials = renderTestimonials;
+window.renderFAQ = renderFAQ;
+window.renderServiceDetail = renderServiceDetail;
+
+/* Re-read data from window and re-render everything.
+   Called by firestore-data.js after Firestore loads. */
+window.refreshAllData = function () {
+  // Sync local variables with window (in case firestore-data.js overrode them)
+  SERVICES = window.SERVICES;
+  TESTIMONIALS = window.TESTIMONIALS;
+  FAQS = window.FAQS;
+
+  // Re-render all page elements that might exist
+  renderHomeServices($('#services-grid'));
+  renderAllServices($('#all-services-container'));
+  renderTestimonials($('#testimonials-grid'));
+  renderFAQ($('#faq-list'));
+
+  if (document.body.dataset.page === 'service-detail') {
+    renderServiceDetail();
+  }
+};
+
+console.log('[main.js] Globals exposed for Firestore override');
+
+
+/* ── EXPOSE FOR FIRESTORE OVERRIDE ── */
+window.SERVICES = SERVICES;
+window.TESTIMONIALS = TESTIMONIALS;
+window.FAQS = FAQS;
+
+window.renderServices = renderHomeServices;
+window.renderAllServices = renderAllServices;
+window.renderTestimonials = renderTestimonials;
+window.renderFAQ = renderFAQ;
+window.renderServiceDetail = renderServiceDetail;
+
+/* Re-read data from window and re-render everything.
+   Called by firestore-data.js after Firestore loads. */
+window.refreshAllData = function () {
+  // Sync local variables with window (in case firestore-data.js overrode them)
+  SERVICES = window.SERVICES;
+  TESTIMONIALS = window.TESTIMONIALS;
+  FAQS = window.FAQS;
+
+  // Re-render all page elements that might exist
+  renderHomeServices($('#services-grid'));
+  renderAllServices($('#all-services-container'));
+  renderTestimonials($('#testimonials-grid'));
+  renderFAQ($('#faq-list'));
+
+  if (document.body.dataset.page === 'service-detail') {
+    renderServiceDetail();
+  }
+};
