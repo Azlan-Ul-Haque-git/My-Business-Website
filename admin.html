@@ -5,177 +5,1032 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Panel — Azis Digital Hub</title>
+  <meta name="robots" content="noindex, nofollow">
   <link rel="stylesheet" href="css/style.css">
   <style>
+    /* ═══════════════════════════════════════════════
+       ADMIN PANEL v3.0 — Fully Responsive
+       ═══════════════════════════════════════════════ */
+
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: var(--navy-deep);
+      overflow-x: hidden;
+    }
+
     .admin-section {
       display: none;
     }
 
     .admin-section.active {
       display: block;
+      animation: sectionIn 0.3s ease;
     }
 
-    .modal-overlay {
-      display: none;
+    @keyframes sectionIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ── LOGIN GATE ── */
+    .login-gate {
       position: fixed;
       inset: 0;
-      z-index: 1000;
-      background: rgba(0, 0, 0, 0.7);
+      z-index: 9999;
+      background: radial-gradient(ellipse at center, #0A0D1E 0%, #05060F 100%);
+      display: flex;
       align-items: center;
       justify-content: center;
+      padding: 20px;
     }
 
-    .modal-overlay.open {
-      display: flex;
-    }
-
-    .modal {
+    .login-card {
       background: var(--navy-light);
       border: 1px solid var(--gold-border);
       border-radius: var(--radius-xl);
-      padding: 36px;
-      width: 90%;
-      max-width: 520px;
-      max-height: 90vh;
-      overflow-y: auto;
+      padding: 48px 36px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6);
     }
 
-    .modal h3 {
-      margin-bottom: 24px;
+    .login-card .logo-mark {
+      font-size: 3rem;
+      margin-bottom: 16px;
+      filter: drop-shadow(0 0 20px rgba(212, 160, 23, 0.4));
+    }
+
+    .login-card h2 {
+      color: var(--white);
+      margin-bottom: 8px;
+      font-size: 1.6rem;
+    }
+
+    .login-card p {
+      color: var(--white-60);
+      font-size: 0.85rem;
+      margin-bottom: 28px;
+    }
+
+    .login-card input {
+      width: 100%;
+      padding: 14px 18px;
+      background: var(--navy-dark);
+      border: 1px solid var(--white-08);
+      border-radius: var(--radius-md);
+      color: var(--white-90);
+      font-size: 0.95rem;
+      text-align: center;
+      letter-spacing: 0.2em;
+      outline: none;
+    }
+
+    .login-card input:focus {
+      border-color: var(--gold-bright);
+      box-shadow: 0 0 0 4px var(--gold-glow);
+    }
+
+    .login-card button {
+      width: 100%;
+      margin-top: 16px;
+      padding: 14px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      background: linear-gradient(135deg, var(--gold-bright), var(--gold-mid));
+      color: var(--navy-deep);
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+
+    .login-card button:hover {
+      transform: translateY(-2px);
+    }
+
+    .login-error {
+      color: #E74C3C;
+      font-size: 0.8rem;
+      margin-top: 12px;
+      display: none;
+    }
+
+    .login-hint {
+      color: var(--white-60);
+      font-size: 0.72rem;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--white-08);
+    }
+
+    /* ── ADMIN LAYOUT ── */
+    .admin-layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: 100vh;
+    }
+
+    /* ── MOBILE TOP BAR ── */
+    .admin-mobile-bar {
+      display: none;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--navy-dark);
+      border-bottom: 1px solid var(--white-08);
+      padding: 12px 16px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .admin-mobile-bar .menu-btn {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--white-08);
+      border: 1px solid var(--white-08);
+      border-radius: var(--radius-sm);
+      color: var(--white);
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    .admin-mobile-bar .bar-title {
+      font-family: var(--font-display);
+      font-size: 1rem;
       color: var(--white);
     }
 
-    .action-btns {
+    /* ── SIDEBAR ── */
+    .admin-sidebar {
+      background: var(--navy-dark);
+      border-right: 1px solid var(--white-08);
+      padding: 24px 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .admin-sidebar-logo {
+      padding: 0 20px 24px;
+      border-bottom: 1px solid var(--white-08);
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .admin-sidebar-close {
+      display: none;
+      background: transparent;
+      border: none;
+      color: var(--white-60);
+      font-size: 1.4rem;
+      cursor: pointer;
+    }
+
+    .admin-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 20px;
+      font-size: 0.88rem;
+      color: var(--white-60);
+      transition: var(--transition);
+      cursor: pointer;
+      border-left: 3px solid transparent;
+    }
+
+    .admin-nav-item:hover {
+      color: var(--white);
+      background: var(--white-08);
+    }
+
+    .admin-nav-item.active {
+      color: var(--white);
+      background: var(--white-08);
+      border-left-color: var(--gold-bright);
+    }
+
+    .admin-nav-item .nav-badge {
+      margin-left: auto;
+      background: var(--gold-glow);
+      color: var(--gold-bright);
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 100px;
+      font-weight: 600;
+    }
+
+    .admin-sidebar-footer {
+      margin-top: auto;
+      padding: 20px;
+      border-top: 1px solid var(--white-08);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* ── MAIN ── */
+    .admin-main {
+      padding: 32px;
+      min-width: 0;
+    }
+
+    .admin-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+
+    .admin-header h2 {
+      color: var(--white);
+      margin-bottom: 4px;
+      font-size: 1.6rem;
+    }
+
+    .admin-header p {
+      font-size: 0.85rem;
+      color: var(--white-60);
+    }
+
+    /* ── STORAGE METER ── */
+    .storage-meter {
+      margin-bottom: 24px;
+      padding: 16px 20px;
+      background: var(--navy-light);
+      border: 1px solid var(--white-08);
+      border-radius: var(--radius-md);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .storage-meter.warning {
+      border-color: rgba(231, 76, 60, 0.4);
+    }
+
+    .storage-bar {
+      height: 8px;
+      background: var(--white-08);
+      border-radius: 4px;
+      overflow: hidden;
+      flex: 1;
+      min-width: 120px;
+      max-width: 300px;
+    }
+
+    .storage-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold-mid), var(--gold-bright));
+      transition: width 0.4s;
+    }
+
+    .storage-meter.warning .storage-fill {
+      background: #E74C3C;
+    }
+
+    /* ── STATS GRID ── */
+    .admin-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .admin-stat-card {
+      background: var(--navy-light);
+      border: 1px solid var(--white-08);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+
+    .admin-stat-card:hover {
+      border-color: var(--gold-border);
+      transform: translateY(-2px);
+    }
+
+    /* ── TABLE WRAP ── */
+    .admin-table-wrap {
+      background: var(--navy-light);
+      border: 1px solid var(--white-08);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+
+    .admin-table-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--white-08);
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .admin-table-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      text-align: left;
+      padding: 14px 20px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--white-60);
+      background: var(--white-08);
+    }
+
+    td {
+      padding: 14px 20px;
+      font-size: 0.85rem;
+      color: var(--white-60);
+      border-bottom: 1px solid var(--white-08);
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    /* ── MOBILE CARD VIEW ── */
+    .mobile-list {
+      display: none;
+      padding: 12px;
+      gap: 12px;
+      flex-direction: column;
+    }
+
+    .mobile-card {
+      background: var(--navy-dark);
+      border: 1px solid var(--white-08);
+      border-radius: var(--radius-md);
+      padding: 16px;
+    }
+
+    .mobile-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .mobile-card-title {
+      color: var(--white);
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .mobile-card-body {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 6px 12px;
+      font-size: 0.82rem;
+      margin-bottom: 14px;
+    }
+
+    .mobile-card-body dt {
+      color: var(--white-60);
+    }
+
+    .mobile-card-body dd {
+      color: var(--white-90);
+    }
+
+    .mobile-card-actions {
       display: flex;
       gap: 8px;
+      flex-wrap: wrap;
+      padding-top: 12px;
+      border-top: 1px solid var(--white-08);
+    }
+
+    .mobile-card-actions button,
+    .mobile-card-actions a {
+      flex: 1;
+      min-width: 90px;
+      justify-content: center;
+    }
+
+    /* ── BUTTONS ── */
+    .action-btns {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
     }
 
     .btn-sm {
-      padding: 6px 14px;
+      padding: 8px 14px;
       font-size: 0.78rem;
       border-radius: var(--radius-sm);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
 
     .btn-danger {
       background: rgba(231, 76, 60, 0.15);
       color: #e74c3c;
       border: 1px solid rgba(231, 76, 60, 0.3);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn-danger:hover {
+      background: rgba(231, 76, 60, 0.25);
     }
 
     .btn-edit {
       background: var(--gold-glow);
       color: var(--gold-pale);
       border: 1px solid var(--gold-border);
+      cursor: pointer;
+      transition: var(--transition);
     }
 
+    .btn-edit:hover {
+      background: rgba(212, 160, 23, 0.25);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--white-08);
+      color: var(--white-60);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--white-20);
+      color: var(--white-90);
+    }
+
+    /* ── SEARCH BAR ── */
     .search-bar {
       display: flex;
       gap: 12px;
       margin-bottom: 20px;
+      flex-wrap: wrap;
     }
 
     .search-input {
       flex: 1;
+      min-width: 200px;
       background: var(--navy-dark);
       border: 1px solid var(--white-08);
       border-radius: var(--radius-md);
-      padding: 10px 16px;
+      padding: 12px 16px;
       color: var(--white-90);
       font-size: 0.88rem;
-      font-family: var(--font-body);
       outline: none;
+      transition: border-color 0.2s;
     }
 
     .search-input:focus {
       border-color: var(--gold-bright);
     }
+
+    .filter-select {
+      background: var(--navy-dark);
+      border: 1px solid var(--white-08);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      color: var(--white-90);
+      font-size: 0.88rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(6px);
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      animation: fadeIn 0.2s ease;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    .modal {
+      background: var(--navy-light);
+      border: 1px solid var(--gold-border);
+      border-radius: var(--radius-xl);
+      padding: 32px;
+      width: 100%;
+      max-width: 580px;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideUp 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(30px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .modal h3 {
+      margin-bottom: 24px;
+      color: var(--white);
+      font-size: 1.3rem;
+    }
+
+    /* ── CONFIRM ── */
+    .confirm-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1100;
+      background: rgba(0, 0, 0, 0.85);
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .confirm-overlay.open {
+      display: flex;
+    }
+
+    .confirm-box {
+      background: var(--navy-light);
+      border: 1px solid rgba(231, 76, 60, 0.4);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      max-width: 440px;
+      text-align: center;
+    }
+
+    .confirm-box h4 {
+      color: var(--white);
+      margin-bottom: 12px;
+      font-size: 1.1rem;
+    }
+
+    .confirm-box p {
+      color: var(--white-60);
+      font-size: 0.88rem;
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+
+    .confirm-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* ── TOASTS ── */
+    .toast-wrap {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: calc(100vw - 40px);
+    }
+
+    .toast {
+      background: var(--navy-light);
+      border: 1px solid var(--gold-border);
+      border-radius: var(--radius-md);
+      padding: 14px 20px;
+      color: var(--white-90);
+      font-size: 0.85rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      animation: slideIn 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+      min-width: 240px;
+    }
+
+    .toast.success {
+      border-color: rgba(46, 204, 113, 0.4);
+    }
+
+    .toast.error {
+      border-color: rgba(231, 76, 60, 0.4);
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(110%);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    /* ── IMAGE / VIDEO PREVIEW ── */
+    .media-preview {
+      width: 100%;
+      min-height: 180px;
+      border: 2px dashed var(--white-08);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white-60);
+      font-size: 0.85rem;
+      cursor: pointer;
+      overflow: hidden;
+      background: var(--navy-dark);
+      transition: border-color 0.2s;
+      position: relative;
+    }
+
+    .media-preview:hover {
+      border-color: var(--gold-border);
+    }
+
+    .media-preview img,
+    .media-preview video {
+      width: 100%;
+      max-height: 280px;
+      object-fit: contain;
+      background: #000;
+    }
+
+    .media-preview .remove-media {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 32px;
+      height: 32px;
+      background: rgba(231, 76, 60, 0.9);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      padding: 60px 20px;
+      text-align: center;
+      color: var(--white-60);
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: 16px;
+      opacity: 0.4;
+    }
+
+    .empty-state-title {
+      color: var(--white-90);
+      font-size: 1rem;
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+
+    .empty-state-cta {
+      margin-top: 20px;
+    }
+
+    /* ── TAG ── */
+    .tag {
+      display: inline-block;
+      padding: 3px 10px;
+      background: var(--white-08);
+      border-radius: 100px;
+      font-size: 0.72rem;
+      color: var(--white-60);
+    }
+
+    /* ═══════════════════════════════════════════════
+       RESPONSIVE — TABLET (≤ 1024px)
+       ═══════════════════════════════════════════════ */
+    @media (max-width: 1024px) {
+      .admin-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* ═══════════════════════════════════════════════
+       RESPONSIVE — MOBILE (≤ 768px)
+       ═══════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      .admin-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .admin-mobile-bar {
+        display: flex;
+      }
+
+      .admin-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 280px;
+        height: 100vh;
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+        z-index: 200;
+        box-shadow: 20px 0 60px rgba(0, 0, 0, 0.5);
+      }
+
+      .admin-sidebar.open {
+        transform: translateX(0);
+      }
+
+      .admin-sidebar-close {
+        display: block;
+      }
+
+      .sidebar-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 150;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+      }
+
+      .sidebar-backdrop.open {
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      .admin-main {
+        padding: 20px 16px;
+      }
+
+      .admin-header h2 {
+        font-size: 1.3rem;
+      }
+
+      /* Switch from table → mobile cards */
+      .desktop-table {
+        display: none !important;
+      }
+
+      .mobile-list {
+        display: flex;
+      }
+
+      .admin-table-head {
+        padding: 14px 16px;
+      }
+
+      .search-input,
+      .filter-select {
+        padding: 10px 14px;
+        font-size: 0.85rem;
+      }
+
+      .storage-meter {
+        padding: 14px 16px;
+        font-size: 0.78rem;
+      }
+
+      .storage-bar {
+        max-width: none;
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .admin-stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .admin-stat-card {
+        padding: 16px;
+      }
+
+      .admin-header h2 {
+        font-size: 1.15rem;
+      }
+
+      .admin-header p {
+        font-size: 0.78rem;
+      }
+
+      .btn-sm {
+        padding: 7px 10px;
+        font-size: 0.72rem;
+      }
+
+      .action-btns {
+        gap: 4px;
+      }
+
+      .modal {
+        padding: 24px 20px;
+        border-radius: var(--radius-lg);
+      }
+
+      .modal h3 {
+        font-size: 1.1rem;
+        margin-bottom: 18px;
+      }
+
+      .login-card {
+        padding: 36px 24px;
+      }
+
+      .toast {
+        padding: 12px 16px;
+        font-size: 0.78rem;
+        min-width: 200px;
+      }
+
+      .admin-mobile-bar {
+        padding: 10px 12px;
+      }
+    }
   </style>
 </head>
 
-<body style="background:var(--navy-deep);">
+<body>
 
-  <!-- ADMIN LAYOUT -->
-  <div class="admin-layout">
+  <!-- ── LOGIN GATE ── -->
+  <div class="login-gate" id="login-gate">
+    <div class="login-card">
+      <div class="logo-mark">✦</div>
+      <h2>Admin Access</h2>
+      <p>Azis Digital Hub — Control Panel</p>
+      <input type="password" id="login-pass" placeholder="Enter password" autocomplete="current-password">
+      <button onclick="attemptLogin()">Unlock Panel</button>
+      <div class="login-error" id="login-error">Incorrect password. Try again.</div>
+      <div class="login-hint">
+        Default password: <strong style="color:var(--gold-bright);">azis2025</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BACKDROP (mobile sidebar) ── -->
+  <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="closeSidebar()"></div>
+
+  <!-- ── ADMIN LAYOUT ── -->
+  <div class="admin-layout" id="admin-app" style="display:none;">
 
     <!-- SIDEBAR -->
-    <aside class="admin-sidebar">
+    <aside class="admin-sidebar" id="admin-sidebar">
       <div class="admin-sidebar-logo">
-        <div class="nav-logo-main" style="font-family:var(--font-display);font-size:1.1rem;color:var(--white);">Azis
-          <span style="color:var(--gold-bright);">Digital</span> Hub</div>
-        <div
-          style="font-size:0.65rem;font-family:var(--font-mono);letter-spacing:0.15em;color:var(--gold-bright);margin-top:4px;">
-          ADMIN PANEL</div>
+        <div>
+          <div class="nav-logo-main"
+            style="font-family:var(--font-display);font-size:1.05rem;color:var(--white);line-height:1.1;">
+            Azis <span style="color:var(--gold-bright);">Digital</span> Hub
+          </div>
+          <div
+            style="font-size:0.6rem;font-family:var(--font-mono);letter-spacing:0.15em;color:var(--gold-bright);margin-top:4px;">
+            ADMIN v3.0
+          </div>
+        </div>
+        <button class="admin-sidebar-close" onclick="closeSidebar()">×</button>
       </div>
 
       <nav>
-        <div class="admin-nav-item active" onclick="showSection('dashboard')">
-          <span>📊</span> Dashboard
-        </div>
+        <div class="admin-nav-item active" onclick="showSection('dashboard')"><span>📊</span> Dashboard</div>
         <div class="admin-nav-item" onclick="showSection('enquiries')">
           <span>💬</span> Enquiries
+          <span class="nav-badge" id="badge-enquiries">0</span>
         </div>
-        <div class="admin-nav-item" onclick="showSection('services')">
-          <span>⚙️</span> Services
-        </div>
-        <div class="admin-nav-item" onclick="showSection('gallery')">
-          <span>🖼️</span> Portfolio
-        </div>
-        <div class="admin-nav-item" onclick="showSection('testimonials')">
-          <span>⭐</span> Testimonials
-        </div>
-        <div class="admin-nav-item" onclick="showSection('settings')">
-          <span>🔧</span> Settings
-        </div>
-        <div style="margin-top:32px;padding:0 20px;">
-          <a href="index.html" class="btn btn-outline" style="width:100%;justify-content:center;font-size:0.82rem;">←
-            View Site</a>
-        </div>
+        <div class="admin-nav-item" onclick="showSection('services')"><span>⚙️</span> Services</div>
+        <div class="admin-nav-item" onclick="showSection('gallery')"><span>🖼️</span> Portfolio</div>
+        <div class="admin-nav-item" onclick="showSection('testimonials')"><span>⭐</span> Testimonials</div>
+        <div class="admin-nav-item" onclick="showSection('settings')"><span>🔧</span> Settings</div>
       </nav>
+
+      <div class="admin-sidebar-footer">
+        <a href="index.html" class="btn btn-outline" style="justify-content:center;font-size:0.82rem;">← View Site</a>
+        <button onclick="logout()" class="btn btn-ghost"
+          style="justify-content:center;font-size:0.82rem;">Logout</button>
+      </div>
     </aside>
 
     <!-- MAIN -->
     <main class="admin-main">
 
+      <!-- MOBILE TOP BAR -->
+      <div class="admin-mobile-bar">
+        <button class="menu-btn" onclick="openSidebar()">☰</button>
+        <div class="bar-title" id="bar-title">Dashboard</div>
+        <button class="menu-btn" onclick="logout()" style="font-size:1rem;">⎋</button>
+      </div>
+
       <!-- DASHBOARD -->
       <section class="admin-section active" id="section-dashboard">
         <div class="admin-header">
           <div>
-            <h2 style="color:var(--white);margin-bottom:4px;">Dashboard</h2>
-            <p style="font-size:0.82rem;">Welcome back to Azis Digital Hub Admin</p>
+            <h2>Dashboard</h2>
+            <p>Welcome back to Azis Digital Hub</p>
           </div>
           <div style="font-family:var(--font-mono);font-size:0.78rem;color:var(--gold-bright);" id="current-time"></div>
         </div>
 
+        <div class="storage-meter" id="storage-meter">
+          <div style="flex:1;">
+            <div style="color:var(--white);font-weight:600;">Local Storage Used</div>
+            <div style="color:var(--white-60);font-size:0.75rem;margin-top:2px;" id="storage-text">Calculating…</div>
+          </div>
+          <div class="storage-bar">
+            <div class="storage-fill" id="storage-fill" style="width:0%;"></div>
+          </div>
+        </div>
+
         <div class="admin-stats-grid">
-          <div class="admin-stat-card">
+          <div class="admin-stat-card" onclick="showSection('enquiries')">
             <div style="font-size:1.5rem;margin-bottom:8px;">💬</div>
             <div class="admin-stat-val" id="stat-enquiries">0</div>
             <div class="admin-stat-label">Total Enquiries</div>
           </div>
-          <div class="admin-stat-card">
+          <div class="admin-stat-card" onclick="showSection('enquiries')">
             <div style="font-size:1.5rem;margin-bottom:8px;">✅</div>
             <div class="admin-stat-val" id="stat-completed">0</div>
-            <div class="admin-stat-label">Completed Orders</div>
+            <div class="admin-stat-label">Completed</div>
           </div>
-          <div class="admin-stat-card">
+          <div class="admin-stat-card" onclick="showSection('services')">
             <div style="font-size:1.5rem;margin-bottom:8px;">⚙️</div>
-            <div class="admin-stat-val">13</div>
-            <div class="admin-stat-label">Active Services</div>
+            <div class="admin-stat-val" id="stat-services">0</div>
+            <div class="admin-stat-label">Services</div>
           </div>
-          <div class="admin-stat-card">
+          <div class="admin-stat-card" onclick="showSection('testimonials')">
             <div style="font-size:1.5rem;margin-bottom:8px;">⭐</div>
             <div class="admin-stat-val" id="stat-testimonials">0</div>
             <div class="admin-stat-label">Testimonials</div>
           </div>
         </div>
 
-        <!-- Recent Enquiries -->
         <div class="admin-table-wrap">
           <div class="admin-table-head">
             <div class="admin-table-title">Recent Enquiries</div>
             <button class="btn btn-gold btn-sm" onclick="showSection('enquiries')">View All →</button>
           </div>
-          <div id="dashboard-recent"></div>
+          <div id="dashboard-recent" class="desktop-table"></div>
+          <div id="dashboard-recent-mobile" class="mobile-list"></div>
         </div>
       </section>
 
@@ -183,17 +1038,23 @@
       <section class="admin-section" id="section-enquiries">
         <div class="admin-header">
           <div>
-            <h2 style="color:var(--white);margin-bottom:4px;">Enquiries</h2>
-            <p style="font-size:0.82rem;">Manage all customer enquiries</p>
+            <h2>Enquiries</h2>
+            <p>Manage all customer enquiries</p>
           </div>
-          <button class="btn btn-gold btn-sm" onclick="openModal('add-enquiry')">+ Add Enquiry</button>
+          <button class="btn btn-gold btn-sm" onclick="openEnquiryModal()">+ Add Enquiry</button>
         </div>
         <div class="search-bar">
-          <input type="text" class="search-input" placeholder="Search by name or service…"
-            oninput="searchEnquiries(this.value)">
+          <input type="text" class="search-input" placeholder="🔍 Search enquiries…"
+            oninput="state.filters.enquiries=this.value.toLowerCase();renderEnquiries();">
+          <select class="filter-select" onchange="state.filters.enqStatus=this.value;renderEnquiries();">
+            <option value="">All Status</option>
+            <option value="pending">⏳ Pending</option>
+            <option value="done">✓ Done</option>
+          </select>
         </div>
         <div class="admin-table-wrap">
-          <div id="enquiries-table"></div>
+          <div id="enquiries-table" class="desktop-table"></div>
+          <div id="enquiries-mobile" class="mobile-list"></div>
         </div>
       </section>
 
@@ -201,64 +1062,130 @@
       <section class="admin-section" id="section-services">
         <div class="admin-header">
           <div>
-            <h2 style="color:var(--white);margin-bottom:4px;">Services</h2>
-            <p style="font-size:0.82rem;">Manage your service offerings and prices</p>
+            <h2>Services</h2>
+            <p>Add, edit, or remove services</p>
           </div>
-          <button class="btn btn-gold btn-sm" onclick="openModal('edit-service')">+ Add Service</button>
+          <button class="btn btn-gold btn-sm" onclick="openServiceModal()">+ Add Service</button>
         </div>
-        <div class="admin-table-wrap" id="services-table"></div>
+        <div class="search-bar">
+          <input type="text" class="search-input" placeholder="🔍 Search services…"
+            oninput="state.filters.services=this.value.toLowerCase();renderAdminServices();">
+          <select class="filter-select" onchange="state.filters.svcCat=this.value;renderAdminServices();">
+            <option value="">All Categories</option>
+            <option value="digital">Digital</option>
+            <option value="creative">Creative</option>
+            <option value="government">Government</option>
+            <option value="education">Education</option>
+            <option value="design">Design</option>
+          </select>
+        </div>
+        <div class="admin-table-wrap">
+          <div id="services-table" class="desktop-table"></div>
+          <div id="services-mobile" class="mobile-list"></div>
+        </div>
       </section>
 
       <!-- GALLERY -->
       <section class="admin-section" id="section-gallery">
         <div class="admin-header">
           <div>
-            <h2 style="color:var(--white);margin-bottom:4px;">Portfolio / Gallery</h2>
-            <p style="font-size:0.82rem;">Manage your portfolio items</p>
+            <h2>Portfolio / Gallery</h2>
+            <p>Manage portfolio items with images & videos</p>
           </div>
-          <button class="btn btn-gold btn-sm" onclick="openModal('add-gallery')">+ Add Item</button>
+          <button class="btn btn-gold btn-sm" onclick="openGalleryModal()">+ Add Item</button>
         </div>
-        <div class="admin-table-wrap" id="gallery-table"></div>
+        <div class="search-bar">
+          <input type="text" class="search-input" placeholder="🔍 Search portfolio…"
+            oninput="state.filters.gallery=this.value.toLowerCase();renderAdminGallery();">
+        </div>
+        <div class="admin-table-wrap">
+          <div id="gallery-table" class="desktop-table"></div>
+          <div id="gallery-mobile" class="mobile-list"></div>
+        </div>
       </section>
 
       <!-- TESTIMONIALS -->
       <section class="admin-section" id="section-testimonials">
         <div class="admin-header">
           <div>
-            <h2 style="color:var(--white);margin-bottom:4px;">Testimonials</h2>
-            <p style="font-size:0.82rem;">Manage customer reviews shown on the site</p>
+            <h2>Testimonials</h2>
+            <p>Manage customer reviews</p>
           </div>
-          <button class="btn btn-gold btn-sm" onclick="openModal('add-testimonial')">+ Add Review</button>
+          <button class="btn btn-gold btn-sm" onclick="openTestimonialModal()">+ Add Review</button>
         </div>
-        <div class="admin-table-wrap" id="testimonials-table"></div>
+        <div class="search-bar">
+          <input type="text" class="search-input" placeholder="🔍 Search testimonials…"
+            oninput="state.filters.testimonials=this.value.toLowerCase();renderAdminTestimonials();">
+        </div>
+        <div class="admin-table-wrap">
+          <div id="testimonials-table" class="desktop-table"></div>
+          <div id="testimonials-mobile" class="mobile-list"></div>
+        </div>
       </section>
 
       <!-- SETTINGS -->
       <section class="admin-section" id="section-settings">
         <div class="admin-header">
-          <h2 style="color:var(--white);">Site Settings</h2>
+          <div>
+            <h2>Site Settings</h2>
+            <p>Business info, backup, and security</p>
+          </div>
         </div>
-        <div style="display:grid;gap:24px;max-width:600px;">
+        <div style="display:grid;gap:24px;max-width:680px;">
           <div class="contact-form" style="padding:28px;">
             <h4 style="color:var(--white);margin-bottom:20px;">Business Info</h4>
             <div class="form-group">
               <label class="form-label">Business Name</label>
-              <input type="text" class="form-input" value="Azis Digital Hub" id="setting-name">
+              <input type="text" class="form-input" id="setting-name">
             </div>
             <div class="form-group">
               <label class="form-label">WhatsApp Number</label>
-              <input type="text" class="form-input" value="+91 9685325881" id="setting-wa">
+              <input type="text" class="form-input" id="setting-wa">
             </div>
             <div class="form-group">
               <label class="form-label">Phone Number</label>
-              <input type="text" class="form-input" value="+91 9685325881" id="setting-phone">
+              <input type="text" class="form-input" id="setting-phone">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-input" id="setting-email">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Instagram URL</label>
+              <input type="text" class="form-input" id="setting-insta">
             </div>
             <div class="form-group">
               <label class="form-label">Address</label>
-              <textarea class="form-textarea" style="min-height:80px;"
-                id="setting-address">1581/4 Nav Nivesh Colony, Ganga Nagar, Garha, Jabalpur – 482003, MP</textarea>
+              <textarea class="form-textarea" style="min-height:80px;" id="setting-address"></textarea>
             </div>
             <button class="btn btn-gold" onclick="saveSettings()">Save Settings</button>
+          </div>
+
+          <div class="contact-form" style="padding:28px;">
+            <h4 style="color:var(--white);margin-bottom:8px;">Backup & Restore</h4>
+            <p style="font-size:0.82rem;color:var(--white-60);margin-bottom:20px;">Export all data as JSON or CSV, or
+              import from a backup.</p>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+              <button class="btn btn-outline" onclick="exportData()">⬇ Export JSON</button>
+              <button class="btn btn-outline" onclick="exportCSV()">⬇ Export CSV</button>
+              <label class="btn btn-outline" style="cursor:pointer;">
+                ⬆ Import JSON
+                <input type="file" accept=".json" style="display:none;" onchange="importData(event)">
+              </label>
+              <button class="btn btn-danger" onclick="confirmReset()">🗑 Reset All</button>
+            </div>
+          </div>
+
+          <div class="contact-form" style="padding:28px;">
+            <h4 style="color:var(--white);margin-bottom:8px;">Change Admin Password</h4>
+            <p style="font-size:0.82rem;color:var(--white-60);margin-bottom:20px;">Default is <code
+                style="background:var(--navy-dark);padding:2px 6px;border-radius:4px;">azis2025</code>. Change it now.
+            </p>
+            <div class="form-group">
+              <label class="form-label">New Password</label>
+              <input type="password" class="form-input" id="setting-new-pass" placeholder="Enter new password">
+            </div>
+            <button class="btn btn-gold" onclick="saveNewPassword()">Update Password</button>
           </div>
         </div>
       </section>
@@ -268,19 +1195,113 @@
 
   <!-- MODALS -->
   <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
-    <div class="modal" id="modal-content">
-      <!-- filled by JS -->
+    <div class="modal" id="modal-content"></div>
+  </div>
+
+  <!-- CONFIRM -->
+  <div class="confirm-overlay" id="confirm-overlay">
+    <div class="confirm-box">
+      <h4 id="confirm-title">Are you sure?</h4>
+      <p id="confirm-msg">This action cannot be undone.</p>
+      <div class="confirm-actions">
+        <button class="btn btn-ghost" onclick="closeConfirm()">Cancel</button>
+        <button class="btn btn-danger" id="confirm-btn">Delete</button>
+      </div>
     </div>
   </div>
 
+  <!-- TOASTS -->
+  <div class="toast-wrap" id="toast-wrap"></div>
+
   <script src="js/main.js"></script>
   <script>
-    /* ── ADMIN STATE ── */
-    let adminData = {
-      enquiries: JSON.parse(localStorage.getItem('adh_enquiries') || '[]'),
-      gallery: JSON.parse(localStorage.getItem('adh_gallery') || '[]'),
-      customTestimonials: JSON.parse(localStorage.getItem('adh_testimonials') || '[]'),
+    /* ═══════════════════════════════════════════════
+       ADMIN PANEL v3.0 — Responsive + Full CRUD
+       ═══════════════════════════════════════════════ */
+
+    const CONFIG = {
+      defaultPassword: 'azis2025',
+      passwordKey: 'adh_admin_pass',
+      dataKey: 'adh_admin_data_v2',
+      sessionKey: 'adh_admin_session'
     };
+
+    const state = {
+      data: {
+        enquiries: [],
+        customServices: [],
+        deletedServices: [],
+        gallery: [],
+        customTestimonials: [],
+        deletedTestimonials: [],
+        settings: {
+          name: 'Azis Digital Hub',
+          wa: '+91 9685325881',
+          phone: '+91 9685325881',
+          email: 'azisinvites@gmail.com',
+          insta: 'https://www.instagram.com/azis_digital_hub',
+          address: '1581/4 Nav Nivesh Colony, Ganga Nagar, Garha, Jabalpur – 482003, MP'
+        }
+      },
+      filters: { enquiries: '', enqStatus: '', services: '', svcCat: '', gallery: '', testimonials: '' },
+      editingIndex: null,
+      editingType: null
+    };
+
+    /* ── PERSISTENCE ── */
+    function loadData() {
+      try {
+        const raw = localStorage.getItem(CONFIG.dataKey);
+        if (raw) state.data = { ...state.data, ...JSON.parse(raw) };
+      } catch (e) { console.warn('Failed to load', e); }
+    }
+    function save() {
+      try {
+        localStorage.setItem(CONFIG.dataKey, JSON.stringify(state.data));
+      } catch (e) {
+        toast('Storage full. Export and reset data.', 'error');
+      }
+    }
+
+    /* ── AUTH ── */
+    function getPassword() {
+      return localStorage.getItem(CONFIG.passwordKey) || CONFIG.defaultPassword;
+    }
+    function attemptLogin() {
+      const input = document.getElementById('login-pass').value;
+      const err = document.getElementById('login-error');
+      if (input === getPassword()) {
+        sessionStorage.setItem(CONFIG.sessionKey, '1');
+        document.getElementById('login-gate').style.display = 'none';
+        document.getElementById('admin-app').style.display = 'grid';
+        init();
+        err.style.display = 'none';
+      } else {
+        err.style.display = 'block';
+        document.getElementById('login-pass').value = '';
+      }
+    }
+    function logout() {
+      sessionStorage.removeItem(CONFIG.sessionKey);
+      location.reload();
+    }
+    function checkSession() {
+      if (sessionStorage.getItem(CONFIG.sessionKey) === '1') {
+        document.getElementById('login-gate').style.display = 'none';
+        document.getElementById('admin-app').style.display = 'grid';
+        init();
+      }
+    }
+
+    /* ── SIDEBAR ── */
+    function openSidebar() {
+      document.getElementById('admin-sidebar').classList.add('open');
+      document.getElementById('sidebar-backdrop').classList.add('open');
+    }
+    function closeSidebar() {
+      document.getElementById('admin-sidebar').classList.remove('open');
+      document.getElementById('sidebar-backdrop').classList.remove('open');
+    }
 
     /* ── NAV ── */
     function showSection(id) {
@@ -290,15 +1311,18 @@
       const items = document.querySelectorAll('.admin-nav-item');
       const map = { dashboard: 0, enquiries: 1, services: 2, gallery: 3, testimonials: 4, settings: 5 };
       items[map[id]].classList.add('active');
+      document.getElementById('bar-title').textContent = items[map[id]].textContent.trim().replace(/\d+$/, '').trim();
+      closeSidebar();
       renderSection(id);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-
     function renderSection(id) {
       if (id === 'dashboard') renderDashboard();
       else if (id === 'enquiries') renderEnquiries();
       else if (id === 'services') renderAdminServices();
       else if (id === 'gallery') renderAdminGallery();
       else if (id === 'testimonials') renderAdminTestimonials();
+      else if (id === 'settings') renderSettings();
     }
 
     /* ── CLOCK ── */
@@ -306,231 +1330,668 @@
       const el = document.getElementById('current-time');
       if (el) el.textContent = new Date().toLocaleString('en-IN');
     }
-    setInterval(updateClock, 1000);
-    updateClock();
+
+    /* ── TOASTS ── */
+    function toast(msg, type = 'success') {
+      const wrap = document.getElementById('toast-wrap');
+      const el = document.createElement('div');
+      el.className = 'toast ' + type;
+      el.textContent = msg;
+      wrap.appendChild(el);
+      setTimeout(() => el.remove(), 3200);
+    }
+
+    /* ── CONFIRM ── */
+    let confirmCallback = null;
+    function confirmAction(title, msg, btnLabel, cb) {
+      document.getElementById('confirm-title').textContent = title;
+      document.getElementById('confirm-msg').textContent = msg;
+      document.getElementById('confirm-btn').textContent = btnLabel;
+      document.getElementById('confirm-overlay').classList.add('open');
+      confirmCallback = cb;
+    }
+    function closeConfirm() {
+      document.getElementById('confirm-overlay').classList.remove('open');
+      confirmCallback = null;
+    }
+    document.getElementById('confirm-btn').addEventListener('click', () => {
+      if (confirmCallback) confirmCallback();
+      closeConfirm();
+    });
+
+    /* ── STORAGE METER ── */
+    function updateStorageMeter() {
+      const bytes = new Blob([JSON.stringify(state.data)]).size;
+      const kb = (bytes / 1024).toFixed(1);
+      const pct = Math.min((bytes / (5 * 1024 * 1024)) * 100, 100).toFixed(1);
+      document.getElementById('storage-text').textContent = `${kb} KB used of ~5 MB`;
+      document.getElementById('storage-fill').style.width = pct + '%';
+      document.getElementById('storage-meter').classList.toggle('warning', pct > 80);
+    }
+
+    /* ── HELPERS ── */
+    function esc(s) {
+      return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+    function getActiveServices() {
+      const builtIn = (typeof SERVICES !== 'undefined' ? SERVICES : []).filter(s => !state.data.deletedServices.includes(s.id));
+      return [...builtIn, ...state.data.customServices];
+    }
+    function getActiveTestimonials() {
+      return state.data.customTestimonials;
+    }
+    function updateBadges() {
+      const pending = state.data.enquiries.filter(e => e.status !== 'done').length;
+      const badge = document.getElementById('badge-enquiries');
+      if (badge) {
+        badge.textContent = pending;
+        badge.style.display = pending > 0 ? 'inline-block' : 'none';
+      }
+    }
 
     /* ── DASHBOARD ── */
     function renderDashboard() {
-      document.getElementById('stat-enquiries').textContent = adminData.enquiries.length;
-      document.getElementById('stat-completed').textContent = adminData.enquiries.filter(e => e.status === 'done').length;
-      document.getElementById('stat-testimonials').textContent = TESTIMONIALS.length + adminData.customTestimonials.length;
+      document.getElementById('stat-enquiries').textContent = state.data.enquiries.length;
+      document.getElementById('stat-completed').textContent = state.data.enquiries.filter(e => e.status === 'done').length;
+      document.getElementById('stat-services').textContent = getActiveServices().length;
+      document.getElementById('stat-testimonials').textContent = getActiveTestimonials().length;
+      updateStorageMeter();
+      updateBadges();
 
-      const recent = adminData.enquiries.slice(-5).reverse();
+      const recent = state.data.enquiries.slice(-5).reverse();
       const el = document.getElementById('dashboard-recent');
+      const elMobile = document.getElementById('dashboard-recent-mobile');
+
       if (recent.length === 0) {
-        el.innerHTML = '<div style="padding:32px;text-align:center;color:var(--white-60);">No enquiries yet. They\'ll appear here after form submissions.</div>';
+        el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">💬</div><div>No enquiries yet</div></div>`;
+        elMobile.innerHTML = el.innerHTML;
         return;
       }
-      el.innerHTML = `<table><thead><tr><th>Name</th><th>Service</th><th>Phone</th><th>Status</th></tr></thead><tbody>
-    ${recent.map(e => `<tr>
-      <td style="color:var(--white);">${e.name}</td>
-      <td>${e.service}</td>
-      <td>${e.phone}</td>
-      <td><span class="badge ${e.status === 'done' ? 'badge-green' : 'badge-gold'}">${e.status === 'done' ? '✓ Done' : '⏳ Pending'}</span></td>
-    </tr>`).join('')}
-  </tbody></table>`;
+
+      const rowsHTML = recent.map(e => `<tr>
+        <td style="color:var(--white);">${esc(e.name)}</td>
+        <td>${esc(e.service)}</td>
+        <td>${esc(e.phone)}</td>
+        <td><span class="badge ${e.status === 'done' ? 'badge-green' : 'badge-gold'}">${e.status === 'done' ? '✓ Done' : '⏳ Pending'}</span></td>
+      </tr>`).join('');
+
+      el.innerHTML = `<table><thead><tr><th>Name</th><th>Service</th><th>Phone</th><th>Status</th></tr></thead><tbody>${rowsHTML}</tbody></table>`;
+
+      elMobile.innerHTML = recent.map(e => `
+        <div class="mobile-card">
+          <div class="mobile-card-header">
+            <div class="mobile-card-title">${esc(e.name)}</div>
+            <span class="badge ${e.status === 'done' ? 'badge-green' : 'badge-gold'}">${e.status === 'done' ? '✓' : '⏳'}</span>
+          </div>
+          <dl class="mobile-card-body">
+            <dt>Service</dt><dd>${esc(e.service)}</dd>
+            <dt>Phone</dt><dd><a href="tel:${esc(e.phone)}" style="color:var(--gold-bright);">${esc(e.phone)}</a></dd>
+          </dl>
+        </div>
+      `).join('');
     }
 
     /* ── ENQUIRIES ── */
-    function renderEnquiries(filter = '') {
-      const list = adminData.enquiries.filter(e =>
-        !filter || e.name.toLowerCase().includes(filter) || e.service.toLowerCase().includes(filter)
+    function renderEnquiries() {
+      const f = state.filters.enquiries;
+      const sFilter = state.filters.enqStatus;
+      const list = state.data.enquiries.filter(e =>
+        (!f || e.name.toLowerCase().includes(f) || e.service.toLowerCase().includes(f) || (e.phone || '').includes(f)) &&
+        (!sFilter || e.status === sFilter)
       );
       const el = document.getElementById('enquiries-table');
+      const elMobile = document.getElementById('enquiries-mobile');
+
       if (list.length === 0) {
-        el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--white-60);">No enquiries found.</div>';
+        const empty = `<div class="empty-state"><div class="empty-state-icon">📭</div><div>No enquiries match your filters</div></div>`;
+        el.innerHTML = empty;
+        elMobile.innerHTML = empty;
         return;
       }
-      el.innerHTML = `<table><thead><tr><th>Name</th><th>Phone</th><th>Service</th><th>Message</th><th>Status</th><th>Actions</th></tr></thead><tbody>
-    ${list.map((e, i) => `<tr>
-      <td style="color:var(--white);font-weight:500;">${e.name}</td>
-      <td><a href="tel:${e.phone}" style="color:var(--gold-bright);">${e.phone}</a></td>
-      <td>${e.service}</td>
-      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${e.message}">${e.message || '—'}</td>
-      <td><span class="badge ${e.status === 'done' ? 'badge-green' : 'badge-gold'}">${e.status === 'done' ? '✓ Done' : '⏳ Pending'}</span></td>
-      <td class="action-btns">
-        <button class="btn btn-sm btn-edit" onclick="toggleStatus(${i})">Toggle</button>
-        <a href="https://wa.me/${e.phone.replace(/\D/g, '')}" target="_blank" class="btn btn-sm btn-edit">💬</a>
-        <button class="btn btn-sm btn-danger" onclick="deleteEnquiry(${i})">✕</button>
-      </td>
-    </tr>`).join('')}
-  </tbody></table>`;
+
+      el.innerHTML = `<table><thead><tr><th>Name</th><th>Phone</th><th>Service</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+        ${list.map(e => {
+        const i = state.data.enquiries.indexOf(e);
+        return `<tr>
+            <td style="color:var(--white);font-weight:500;">${esc(e.name)}</td>
+            <td><a href="tel:${esc(e.phone)}" style="color:var(--gold-bright);">${esc(e.phone)}</a></td>
+            <td>${esc(e.service)}</td>
+            <td><span class="badge ${e.status === 'done' ? 'badge-green' : 'badge-gold'}">${e.status === 'done' ? '✓ Done' : '⏳ Pending'}</span></td>
+            <td class="action-btns">
+              <button class="btn btn-sm btn-edit" onclick="toggleStatus(${i})" title="Toggle status">✓</button>
+              <a href="https://wa.me/${(e.phone || '').replace(/\D/g, '')}" target="_blank" class="btn btn-sm btn-edit" title="WhatsApp">💬</a>
+              <button class="btn btn-sm btn-edit" onclick="openEnquiryModal(${i})" title="Edit">✏️</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteEnquiry(${i})" title="Delete">✕</button>
+            </td>
+          </tr>`;
+      }).join('')}
+      </tbody></table>`;
+
+      elMobile.innerHTML = list.map(e => {
+        const i = state.data.enquiries.indexOf(e);
+        return `<div class="mobile-card">
+          <div class="mobile-card-header">
+            <div class="mobile-card-title">${esc(e.name)}</div>
+            <span class="badge ${e.status === 'done' ? 'badge-green' : 'badge-gold'}">${e.status === 'done' ? '✓ Done' : '⏳ Pending'}</span>
+          </div>
+          <dl class="mobile-card-body">
+            <dt>Phone</dt><dd><a href="tel:${esc(e.phone)}" style="color:var(--gold-bright);">${esc(e.phone)}</a></dd>
+            <dt>Service</dt><dd>${esc(e.service)}</dd>
+            <dt>Message</dt><dd>${esc(e.message) || '—'}</dd>
+          </dl>
+          <div class="mobile-card-actions">
+            <button class="btn btn-sm btn-edit" onclick="toggleStatus(${i})">Toggle</button>
+            <a href="https://wa.me/${(e.phone || '').replace(/\D/g, '')}" target="_blank" class="btn btn-sm btn-edit">💬 WhatsApp</a>
+            <button class="btn btn-sm btn-edit" onclick="openEnquiryModal(${i})">Edit</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteEnquiry(${i})">Delete</button>
+          </div>
+        </div>`;
+      }).join('');
     }
-
-    function searchEnquiries(val) { renderEnquiries(val.toLowerCase()); }
-
     function toggleStatus(i) {
-      adminData.enquiries[i].status = adminData.enquiries[i].status === 'done' ? 'pending' : 'done';
-      save();
-      renderEnquiries();
+      state.data.enquiries[i].status = state.data.enquiries[i].status === 'done' ? 'pending' : 'done';
+      save(); renderEnquiries(); updateBadges(); toast('Status updated');
     }
     function deleteEnquiry(i) {
-      if (confirm('Delete this enquiry?')) {
-        adminData.enquiries.splice(i, 1);
-        save();
-        renderEnquiries();
+      confirmAction('Delete Enquiry?', 'This will permanently remove this enquiry.', 'Delete', () => {
+        state.data.enquiries.splice(i, 1); save(); renderEnquiries(); updateBadges(); toast('Enquiry deleted');
+      });
+    }
+    function openEnquiryModal(i = null) {
+      state.editingIndex = i;
+      const e = i !== null ? state.data.enquiries[i] : { name: '', phone: '', service: '', message: '' };
+      document.getElementById('modal-content').innerHTML = `
+        <h3>${i !== null ? 'Edit' : 'Add'} Enquiry</h3>
+        <form onsubmit="submitEnquiry(event)">
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Name</label><input type="text" name="name" class="form-input" value="${esc(e.name)}" required></div>
+            <div class="form-group"><label class="form-label">Phone</label><input type="tel" name="phone" class="form-input" value="${esc(e.phone)}" required></div>
+          </div>
+          <div class="form-group"><label class="form-label">Service</label>
+            <select name="service" class="form-select">
+              ${getActiveServices().map(s => `<option ${s.title === e.service ? 'selected' : ''}>${esc(s.title)}</option>`).join('')}
+              <option ${e.service === 'Other' ? 'selected' : ''}>Other</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Message</label><textarea name="message" class="form-textarea">${esc(e.message)}</textarea></div>
+          <div style="display:flex;gap:12px;">
+            <button type="submit" class="btn btn-gold">${i !== null ? 'Save' : 'Add'}</button>
+            <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+          </div>
+        </form>`;
+      openModal();
+    }
+    function submitEnquiry(ev) {
+      ev.preventDefault();
+      const fd = new FormData(ev.target);
+      const item = {
+        name: fd.get('name'), phone: fd.get('phone'), service: fd.get('service'),
+        message: fd.get('message'), status: 'pending', date: new Date().toLocaleDateString('en-IN')
+      };
+      if (state.editingIndex !== null) {
+        item.status = state.data.enquiries[state.editingIndex].status;
+        item.date = state.data.enquiries[state.editingIndex].date;
+        state.data.enquiries[state.editingIndex] = item;
+      } else {
+        state.data.enquiries.push(item);
       }
+      save(); closeModal(); renderEnquiries(); updateBadges(); toast('Enquiry saved');
     }
 
-    /* ── SERVICES TABLE ── */
+    /* ── SERVICES ── */
     function renderAdminServices() {
+      const f = state.filters.services;
+      const cat = state.filters.svcCat;
+      const list = getActiveServices().filter(s =>
+        (!f || s.title.toLowerCase().includes(f) || (s.category || '').toLowerCase().includes(f)) &&
+        (!cat || s.category === cat)
+      );
       const el = document.getElementById('services-table');
-      el.innerHTML = `<table><thead><tr><th>Icon</th><th>Service</th><th>Category</th><th>Starting Price</th><th>Actions</th></tr></thead><tbody>
-    ${SERVICES.map((s, i) => `<tr>
-      <td>${s.icon}</td>
-      <td style="color:var(--white);font-weight:500;">${s.title}</td>
-      <td><span class="badge badge-gray">${s.category}</span></td>
-      <td style="color:var(--gold-bright);font-family:var(--font-mono);font-size:0.82rem;">${s.price}</td>
-      <td class="action-btns">
-        <a href="service.html?id=${s.id}" target="_blank" class="btn btn-sm btn-edit">View</a>
-      </td>
-    </tr>`).join('')}
-  </tbody></table>`;
+      const elMobile = document.getElementById('services-mobile');
+
+      if (list.length === 0) {
+        const empty = `<div class="empty-state">
+          <div class="empty-state-icon">⚙️</div>
+          <div class="empty-state-title">No services found</div>
+          <div>Try adjusting filters or add a new service</div>
+          <div class="empty-state-cta"><button class="btn btn-gold btn-sm" onclick="openServiceModal()">+ Add Service</button></div>
+        </div>`;
+        el.innerHTML = empty;
+        elMobile.innerHTML = empty;
+        return;
+      }
+
+      el.innerHTML = `<table><thead><tr><th>Icon</th><th>Title</th><th>Category</th><th>Price</th><th>Actions</th></tr></thead><tbody>
+        ${list.map(s => {
+        const isCustom = state.data.customServices.includes(s);
+        const idx = isCustom ? state.data.customServices.indexOf(s) : -1;
+        return `<tr>
+            <td style="font-size:1.4rem;">${esc(s.icon || '⚙️')}</td>
+            <td style="color:var(--white);font-weight:500;">${esc(s.title)}</td>
+            <td><span class="tag">${esc(s.category || 'digital')}</span></td>
+            <td style="color:var(--gold-bright);font-family:var(--font-mono);font-size:0.82rem;">${esc(s.price || '—')}</td>
+            <td class="action-btns">
+              ${s.id ? `<a href="service.html?id=${esc(s.id)}" target="_blank" class="btn btn-sm btn-edit">👁</a>` : ''}
+              <button class="btn btn-sm btn-edit" onclick='openServiceModal(${idx}, ${JSON.stringify(s).replace(/'/g, "&#39;")})'>✏️</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteService(${idx}, '${esc(s.id || '')}')">✕</button>
+            </td>
+          </tr>`;
+      }).join('')}
+      </tbody></table>`;
+
+      elMobile.innerHTML = list.map(s => {
+        const isCustom = state.data.customServices.includes(s);
+        const idx = isCustom ? state.data.customServices.indexOf(s) : -1;
+        return `<div class="mobile-card">
+          <div class="mobile-card-header">
+            <div class="mobile-card-title">${esc(s.icon || '⚙️')} ${esc(s.title)}</div>
+            <span class="tag">${esc(s.category || 'digital')}</span>
+          </div>
+          <dl class="mobile-card-body">
+            <dt>Price</dt><dd style="color:var(--gold-bright);font-family:var(--font-mono);">${esc(s.price || '—')}</dd>
+            <dt>Description</dt><dd>${esc(s.desc || '—')}</dd>
+          </dl>
+          <div class="mobile-card-actions">
+            ${s.id ? `<a href="service.html?id=${esc(s.id)}" target="_blank" class="btn btn-sm btn-edit">👁 View</a>` : ''}
+            <button class="btn btn-sm btn-edit" onclick='openServiceModal(${idx}, ${JSON.stringify(s).replace(/'/g, "&#39;")})'>Edit</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteService(${idx}, '${esc(s.id || '')}')">Delete</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+    function openServiceModal(idx = null, svc = null) {
+      state.editingIndex = idx;
+      const s = svc || { id: '', icon: '⚙️', title: '', desc: '', price: '', category: 'digital', features: [], detail: '' };
+      document.getElementById('modal-content').innerHTML = `
+        <h3>${idx !== null ? 'Edit' : 'Add'} Service</h3>
+        <form onsubmit="submitService(event)">
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Icon (emoji)</label><input type="text" name="icon" class="form-input" value="${esc(s.icon)}" maxlength="4"></div>
+            <div class="form-group"><label class="form-label">Price</label><input type="text" name="price" class="form-input" value="${esc(s.price)}" placeholder="₹499"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Title</label><input type="text" name="title" class="form-input" value="${esc(s.title)}" required></div>
+          <div class="form-group"><label class="form-label">Short Description</label><input type="text" name="desc" class="form-input" value="${esc(s.desc)}"></div>
+          <div class="form-group"><label class="form-label">Category</label>
+            <select name="category" class="form-select">
+              ${['digital', 'creative', 'government', 'education', 'design'].map(c => `<option ${c === s.category ? 'selected' : ''}>${c}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Features (one per line)</label><textarea name="features" class="form-textarea">${esc((s.features || []).join('\n'))}</textarea></div>
+          <div class="form-group"><label class="form-label">Detailed Description</label><textarea name="detail" class="form-textarea">${esc(s.detail)}</textarea></div>
+          <div style="display:flex;gap:12px;">
+            <button type="submit" class="btn btn-gold">${idx !== null ? 'Save' : 'Add'}</button>
+            <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+          </div>
+        </form>`;
+      openModal();
+    }
+    function submitService(ev) {
+      ev.preventDefault();
+      const fd = new FormData(ev.target);
+      const item = {
+        id: (fd.get('title') || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'custom-' + Date.now(),
+        icon: fd.get('icon') || '⚙️',
+        title: fd.get('title'),
+        desc: fd.get('desc'),
+        price: fd.get('price'),
+        category: fd.get('category'),
+        features: (fd.get('features') || '').split('\n').filter(Boolean),
+        detail: fd.get('detail')
+      };
+      if (state.editingIndex !== null) {
+        state.data.customServices[state.editingIndex] = item;
+      } else {
+        const existsBuiltIn = (typeof SERVICES !== 'undefined') && SERVICES.some(s => s.id === item.id);
+        if (existsBuiltIn) {
+          state.data.deletedServices = state.data.deletedServices.filter(id => id !== item.id);
+          toast('Built-in service restored');
+        } else {
+          state.data.customServices.push(item);
+        }
+      }
+      save(); closeModal(); renderAdminServices(); toast('Service saved');
+    }
+    function deleteService(customIdx, builtInId) {
+      confirmAction('Delete Service?', 'This service will be removed from your website.', 'Delete', () => {
+        if (customIdx >= 0) {
+          state.data.customServices.splice(customIdx, 1);
+        } else if (builtInId) {
+          state.data.deletedServices.push(builtInId);
+        }
+        save(); renderAdminServices(); toast('Service deleted');
+      });
     }
 
-    /* ── GALLERY TABLE ── */
+    /* ── GALLERY ── */
     function renderAdminGallery() {
+      const f = state.filters.gallery;
+      const list = state.data.gallery.filter(g =>
+        !f || (g.title || '').toLowerCase().includes(f) || (g.cat || '').toLowerCase().includes(f)
+      );
       const el = document.getElementById('gallery-table');
-      const all = [
-        { title: 'Retail Business Site', cat: 'Website Design', status: 'published' },
-        { title: 'Floral Theme Invite', cat: 'Invitation Video', status: 'published' },
-        { title: 'Modern CV Design', cat: 'Resume / CV', status: 'published' },
-        { title: 'Kirana Store Branding', cat: 'Business Branding', status: 'published' },
-        ...adminData.gallery
-      ];
-      el.innerHTML = `<table><thead><tr><th>Title</th><th>Category</th><th>Status</th><th>Actions</th></tr></thead><tbody>
-    ${all.map((g, i) => `<tr>
-      <td style="color:var(--white);">${g.title}</td>
-      <td>${g.cat}</td>
-      <td><span class="badge badge-green">${g.status}</span></td>
-      <td class="action-btns">
-        ${i >= 4 ? `<button class="btn btn-sm btn-danger" onclick="deleteGallery(${i - 4})">✕</button>` : '<span style="color:var(--white-60);font-size:0.75rem;">Built-in</span>'}
-      </td>
-    </tr>`).join('')}
-  </tbody></table>`;
+      const elMobile = document.getElementById('gallery-mobile');
+
+      if (list.length === 0) {
+        const empty = `<div class="empty-state">
+          <div class="empty-state-icon">🖼️</div>
+          <div class="empty-state-title">No portfolio items yet</div>
+          <div>Add your first project to showcase your work</div>
+          <div class="empty-state-cta"><button class="btn btn-gold btn-sm" onclick="openGalleryModal()">+ Add Item</button></div>
+        </div>`;
+        el.innerHTML = empty;
+        elMobile.innerHTML = empty;
+        return;
+      }
+
+      el.innerHTML = `<table><thead><tr><th>Preview</th><th>Title</th><th>Category</th><th>Actions</th></tr></thead><tbody>
+        ${list.map(g => {
+        const i = state.data.gallery.indexOf(g);
+        const preview = g.img
+          ? (g.img.startsWith('data:video') ? `<video src="${esc(g.img)}" muted style="width:60px;height:60px;object-fit:cover;border-radius:8px;"></video>` : `<img src="${esc(g.img)}" style="width:60px;height:60px;object-fit:cover;border-radius:8px;">`)
+          : '<span style="color:var(--white-60);font-size:0.75rem;">No media</span>';
+        return `<tr>
+            <td>${preview}</td>
+            <td style="color:var(--white);">${esc(g.title)}</td>
+            <td><span class="tag">${esc(g.cat)}</span></td>
+            <td class="action-btns">
+              <button class="btn btn-sm btn-edit" onclick="openGalleryModal(${i})">✏️</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteGallery(${i})">✕</button>
+            </td>
+          </tr>`;
+      }).join('')}
+      </tbody></table>`;
+
+      elMobile.innerHTML = list.map(g => {
+        const i = state.data.gallery.indexOf(g);
+        const preview = g.img
+          ? (g.img.startsWith('data:video') ? `<video src="${esc(g.img)}" muted style="width:100%;height:180px;object-fit:cover;border-radius:8px;"></video>` : `<img src="${esc(g.img)}" style="width:100%;height:180px;object-fit:cover;border-radius:8px;">`)
+          : '';
+        return `<div class="mobile-card">
+          ${preview}
+          <div class="mobile-card-header" style="margin-top:12px;">
+            <div class="mobile-card-title">${esc(g.title)}</div>
+          </div>
+          <div style="margin-bottom:12px;"><span class="tag">${esc(g.cat)}</span></div>
+          <div class="mobile-card-actions">
+            <button class="btn btn-sm btn-edit" onclick="openGalleryModal(${i})">Edit</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteGallery(${i})">Delete</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+    function openGalleryModal(i = null) {
+      state.editingIndex = i;
+      const g = i !== null ? state.data.gallery[i] : { title: '', cat: 'Website Design', img: '' };
+      document.getElementById('modal-content').innerHTML = `
+        <h3>${i !== null ? 'Edit' : 'Add'} Portfolio Item</h3>
+        <form onsubmit="submitGallery(event)">
+          <div class="form-group"><label class="form-label">Title</label><input type="text" name="title" class="form-input" value="${esc(g.title)}" required></div>
+          <div class="form-group"><label class="form-label">Category</label>
+            <select name="cat" class="form-select">
+              ${['Website Design', 'Invitation Video', 'Resume / CV', 'Business Branding', 'Graphic Design', 'Certificate'].map(c => `<option ${c === g.cat ? 'selected' : ''}>${c}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Image or Video (max 500KB img / 3MB video)</label>
+            <div class="media-preview" id="gallery-media-preview" onclick="document.getElementById('gallery-media-input').click()">
+              ${renderMediaPreview(g.img)}
+            </div>
+            <input type="file" accept="image/*,video/*" id="gallery-media-input" style="display:none;" onchange="handleMediaUpload(event)">
+            <input type="hidden" name="img" id="gallery-media-data" value="${esc(g.img)}">
+          </div>
+          <div style="display:flex;gap:12px;">
+            <button type="submit" class="btn btn-gold">${i !== null ? 'Save' : 'Add'}</button>
+            <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+          </div>
+        </form>`;
+      openModal();
+    }
+    function renderMediaPreview(data) {
+      if (!data) return '📷 Click to upload image or video';
+      if (data.startsWith('data:video')) return `<video src="${esc(data)}" controls muted style="width:100%;"></video><button type="button" class="remove-media" onclick="removeMedia(event)">✕</button>`;
+      return `<img src="${esc(data)}"><button type="button" class="remove-media" onclick="removeMedia(event)">✕</button>`;
+    }
+    function removeMedia(ev) {
+      ev.stopPropagation();
+      document.getElementById('gallery-media-data').value = '';
+      document.getElementById('gallery-media-preview').innerHTML = '📷 Click to upload image or video';
+    }
+    function handleMediaUpload(ev) {
+      const file = ev.target.files[0];
+      if (!file) return;
+      const isVideo = file.type.startsWith('video');
+      const maxSize = isVideo ? 3 * 1024 * 1024 : 500 * 1024;
+      const maxLabel = isVideo ? '3MB' : '500KB';
+      if (file.size > maxSize) { toast(`File too large. Max ${maxLabel}.`, 'error'); return; }
+      const reader = new FileReader();
+      reader.onload = e => {
+        document.getElementById('gallery-media-data').value = e.target.result;
+        document.getElementById('gallery-media-preview').innerHTML = renderMediaPreview(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+    function submitGallery(ev) {
+      ev.preventDefault();
+      const fd = new FormData(ev.target);
+      const item = { title: fd.get('title'), cat: fd.get('cat'), img: fd.get('img') || '', status: 'published' };
+      if (state.editingIndex !== null) state.data.gallery[state.editingIndex] = item;
+      else state.data.gallery.push(item);
+      save(); closeModal(); renderAdminGallery(); toast('Portfolio item saved');
     }
     function deleteGallery(i) {
-      adminData.gallery.splice(i, 1);
-      save();
-      renderAdminGallery();
+      confirmAction('Delete Portfolio Item?', 'This will remove it from your portfolio.', 'Delete', () => {
+        state.data.gallery.splice(i, 1); save(); renderAdminGallery(); toast('Portfolio item deleted');
+      });
     }
 
-    /* ── TESTIMONIALS TABLE ── */
+    /* ── TESTIMONIALS ── */
     function renderAdminTestimonials() {
+      const f = state.filters.testimonials;
+      const list = state.data.customTestimonials.filter(t =>
+        !f || (t.name || '').toLowerCase().includes(f) || (t.text || '').toLowerCase().includes(f)
+      );
       const el = document.getElementById('testimonials-table');
-      const all = [...TESTIMONIALS, ...adminData.customTestimonials];
+      const elMobile = document.getElementById('testimonials-mobile');
+
+      if (list.length === 0) {
+        const empty = `<div class="empty-state">
+          <div class="empty-state-icon">⭐</div>
+          <div class="empty-state-title">No custom testimonials yet</div>
+          <div>Add your first client review</div>
+          <div class="empty-state-cta"><button class="btn btn-gold btn-sm" onclick="openTestimonialModal()">+ Add Review</button></div>
+        </div>`;
+        el.innerHTML = empty;
+        elMobile.innerHTML = empty;
+        return;
+      }
+
       el.innerHTML = `<table><thead><tr><th>Name</th><th>Role</th><th>Stars</th><th>Preview</th><th>Actions</th></tr></thead><tbody>
-    ${all.map((t, i) => `<tr>
-      <td style="color:var(--white);font-weight:500;">${t.name}</td>
-      <td>${t.role}</td>
-      <td style="color:var(--gold-bright);">${'★'.repeat(t.stars)}</td>
-      <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-style:italic;" title="${t.text}">${t.text}</td>
-      <td>${i >= TESTIMONIALS.length ? `<button class="btn btn-sm btn-danger" onclick="deleteTestimonial(${i - TESTIMONIALS.length})">✕</button>` : '<span style="color:var(--white-60);font-size:0.75rem;">Built-in</span>'}</td>
-    </tr>`).join('')}
-  </tbody></table>`;
+        ${list.map(t => {
+        const i = state.data.customTestimonials.indexOf(t);
+        return `<tr>
+            <td style="color:var(--white);font-weight:500;">${esc(t.name)}</td>
+            <td>${esc(t.role)}</td>
+            <td style="color:var(--gold-bright);">${'★'.repeat(t.stars || 5)}</td>
+            <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-style:italic;" title="${esc(t.text)}">${esc(t.text)}</td>
+            <td class="action-btns">
+              <button class="btn btn-sm btn-edit" onclick="openTestimonialModal(${i})">✏️</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteTestimonial(${i})">✕</button>
+            </td>
+          </tr>`;
+      }).join('')}
+      </tbody></table>`;
+
+      elMobile.innerHTML = list.map(t => {
+        const i = state.data.customTestimonials.indexOf(t);
+        return `<div class="mobile-card">
+          <div class="mobile-card-header">
+            <div class="mobile-card-title">${esc(t.name)}</div>
+            <div style="color:var(--gold-bright);">${'★'.repeat(t.stars || 5)}</div>
+          </div>
+          <div style="font-size:0.78rem;color:var(--white-60);margin-bottom:10px;">${esc(t.role)}</div>
+          <div style="font-size:0.85rem;color:var(--white-90);font-style:italic;line-height:1.5;margin-bottom:14px;">"${esc(t.text)}"</div>
+          <div class="mobile-card-actions">
+            <button class="btn btn-sm btn-edit" onclick="openTestimonialModal(${i})">Edit</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteTestimonial(${i})">Delete</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+    function openTestimonialModal(i = null) {
+      state.editingIndex = i;
+      const t = i !== null ? state.data.customTestimonials[i] : { name: '', initials: '', role: '', text: '', stars: 5 };
+      document.getElementById('modal-content').innerHTML = `
+        <h3>${i !== null ? 'Edit' : 'Add'} Testimonial</h3>
+        <form onsubmit="submitTestimonial(event)">
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Client Name</label><input type="text" name="name" class="form-input" value="${esc(t.name)}" required></div>
+            <div class="form-group"><label class="form-label">Initials</label><input type="text" name="initials" class="form-input" value="${esc(t.initials)}" maxlength="2" required></div>
+          </div>
+          <div class="form-group"><label class="form-label">Role / Location</label><input type="text" name="role" class="form-input" value="${esc(t.role)}" placeholder="e.g. Student, Jabalpur"></div>
+          <div class="form-group"><label class="form-label">Review Text</label><textarea name="text" class="form-textarea" required>${esc(t.text)}</textarea></div>
+          <div class="form-group"><label class="form-label">Stars</label>
+            <select name="stars" class="form-select">
+              ${[5, 4, 3, 2, 1].map(n => `<option value="${n}" ${n === t.stars ? 'selected' : ''}>${'★'.repeat(n)} (${n})</option>`).join('')}
+            </select>
+          </div>
+          <div style="display:flex;gap:12px;">
+            <button type="submit" class="btn btn-gold">${i !== null ? 'Save' : 'Add'}</button>
+            <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+          </div>
+        </form>`;
+      openModal();
+    }
+    function submitTestimonial(ev) {
+      ev.preventDefault();
+      const fd = new FormData(ev.target);
+      const item = {
+        name: fd.get('name'), initials: fd.get('initials').toUpperCase(),
+        role: fd.get('role'), text: fd.get('text'), stars: parseInt(fd.get('stars'))
+      };
+      if (state.editingIndex !== null) state.data.customTestimonials[state.editingIndex] = item;
+      else state.data.customTestimonials.push(item);
+      save(); closeModal(); renderAdminTestimonials(); toast('Testimonial saved');
     }
     function deleteTestimonial(i) {
-      adminData.customTestimonials.splice(i, 1);
-      save();
-      renderAdminTestimonials();
+      confirmAction('Delete Testimonial?', 'This will remove this review from your site.', 'Delete', () => {
+        state.data.customTestimonials.splice(i, 1); save(); renderAdminTestimonials(); toast('Testimonial deleted');
+      });
     }
 
-    /* ── MODALS ── */
-    const MODALS = {
-      'add-enquiry': `
-    <h3>Add Enquiry</h3>
-    <form onsubmit="submitEnquiry(event)">
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Name</label><input type="text" name="name" class="form-input" required></div>
-        <div class="form-group"><label class="form-label">Phone</label><input type="tel" name="phone" class="form-input" required></div>
-      </div>
-      <div class="form-group"><label class="form-label">Service</label>
-        <select name="service" class="form-select">
-          <option>Website Design</option><option>Wedding Invitation Video</option><option>PAN Card</option>
-          <option>Passport</option><option>Resume / CV</option><option>Branding</option><option>Other</option>
-        </select>
-      </div>
-      <div class="form-group"><label class="form-label">Message</label><textarea name="message" class="form-textarea"></textarea></div>
-      <div style="display:flex;gap:12px;">
-        <button type="submit" class="btn btn-gold">Add Enquiry</button>
-        <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-      </div>
-    </form>`,
-      'add-testimonial': `
-    <h3>Add Testimonial</h3>
-    <form onsubmit="submitTestimonial(event)">
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Client Name</label><input type="text" name="name" class="form-input" required></div>
-        <div class="form-group"><label class="form-label">Initials (2 chars)</label><input type="text" name="initials" class="form-input" maxlength="2" required></div>
-      </div>
-      <div class="form-group"><label class="form-label">Role / Location</label><input type="text" name="role" class="form-input" placeholder="e.g. Student, Jabalpur"></div>
-      <div class="form-group"><label class="form-label">Review Text</label><textarea name="text" class="form-textarea" required></textarea></div>
-      <div class="form-group"><label class="form-label">Stars (1–5)</label>
-        <select name="stars" class="form-select"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select>
-      </div>
-      <div style="display:flex;gap:12px;">
-        <button type="submit" class="btn btn-gold">Add Review</button>
-        <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-      </div>
-    </form>`,
-      'add-gallery': `
-    <h3>Add Portfolio Item</h3>
-    <form onsubmit="submitGallery(event)">
-      <div class="form-group"><label class="form-label">Title</label><input type="text" name="title" class="form-input" required></div>
-      <div class="form-group"><label class="form-label">Category</label>
-        <select name="cat" class="form-select">
-          <option>Website Design</option><option>Invitation Video</option><option>Resume / CV</option>
-          <option>Business Branding</option><option>Graphic Design</option><option>Certificate</option>
-        </select>
-      </div>
-      <div style="display:flex;gap:12px;">
-        <button type="submit" class="btn btn-gold">Add to Portfolio</button>
-        <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-      </div>
-    </form>`
-    };
+    /* ── SETTINGS ── */
+    function renderSettings() {
+      const s = state.data.settings;
+      document.getElementById('setting-name').value = s.name;
+      document.getElementById('setting-wa').value = s.wa;
+      document.getElementById('setting-phone').value = s.phone;
+      document.getElementById('setting-email').value = s.email;
+      document.getElementById('setting-insta').value = s.insta;
+      document.getElementById('setting-address').value = s.address;
+    }
+    function saveSettings() {
+      state.data.settings = {
+        name: document.getElementById('setting-name').value,
+        wa: document.getElementById('setting-wa').value,
+        phone: document.getElementById('setting-phone').value,
+        email: document.getElementById('setting-email').value,
+        insta: document.getElementById('setting-insta').value,
+        address: document.getElementById('setting-address').value
+      };
+      save(); toast('Settings saved');
+    }
+    function saveNewPassword() {
+      const p = document.getElementById('setting-new-pass').value;
+      if (!p || p.length < 4) { toast('Password too short (min 4 chars)', 'error'); return; }
+      localStorage.setItem(CONFIG.passwordKey, p);
+      document.getElementById('setting-new-pass').value = '';
+      toast('Password updated');
+    }
 
-    function openModal(type) {
-      document.getElementById('modal-content').innerHTML = MODALS[type] || '';
+    /* ── BACKUP ── */
+    function exportData() {
+      const blob = new Blob([JSON.stringify(state.data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `azis-admin-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast('Backup downloaded');
+    }
+    function exportCSV() {
+      let csv = 'Type,Name,Phone/Service,Details,Status\n';
+      state.data.enquiries.forEach(e => {
+        csv += `Enquiry,"${e.name}","${e.phone}","${(e.service || '')} — ${(e.message || '').replace(/"/g, '""')}","${e.status}"\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `azis-enquiries-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast('CSV exported');
+    }
+    function importData(ev) {
+      const file = ev.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          state.data = { ...state.data, ...parsed };
+          save();
+          toast('Data imported');
+          showSection('dashboard');
+        } catch (err) {
+          toast('Invalid backup file', 'error');
+        }
+      };
+      reader.readAsText(file);
+    }
+    function confirmReset() {
+      confirmAction('Reset All Data?', 'This will delete ALL enquiries, custom services, portfolio, and testimonials. Cannot be undone.', 'Reset Everything', () => {
+        localStorage.removeItem(CONFIG.dataKey);
+        state.data = {
+          enquiries: [], customServices: [], deletedServices: [], gallery: [],
+          customTestimonials: [], deletedTestimonials: [],
+          settings: { name: 'Azis Digital Hub', wa: '+91 9685325881', phone: '+91 9685325881', email: 'azisinvites@gmail.com', insta: '', address: '' }
+        };
+        save(); showSection('dashboard'); toast('All data reset');
+      });
+    }
+
+    /* ── MODAL HELPERS ── */
+    function openModal() {
       document.getElementById('modal-overlay').classList.add('open');
     }
     function closeModal(e) {
       if (!e || e.target === document.getElementById('modal-overlay')) {
         document.getElementById('modal-overlay').classList.remove('open');
+        state.editingIndex = null;
       }
     }
-
-    /* ── FORM SUBMITS ── */
-    function submitEnquiry(e) {
-      e.preventDefault();
-      const fd = new FormData(e.target);
-      adminData.enquiries.push({ name: fd.get('name'), phone: fd.get('phone'), service: fd.get('service'), message: fd.get('message'), status: 'pending', date: new Date().toLocaleDateString('en-IN') });
-      save(); closeModal(); renderDashboard();
-    }
-    function submitTestimonial(e) {
-      e.preventDefault();
-      const fd = new FormData(e.target);
-      adminData.customTestimonials.push({ name: fd.get('name'), initials: fd.get('initials'), role: fd.get('role'), text: fd.get('text'), stars: parseInt(fd.get('stars')) });
-      save(); closeModal(); renderAdminTestimonials();
-    }
-    function submitGallery(e) {
-      e.preventDefault();
-      const fd = new FormData(e.target);
-      adminData.gallery.push({ title: fd.get('title'), cat: fd.get('cat'), status: 'published' });
-      save(); closeModal(); renderAdminGallery();
-    }
-    function saveSettings() {
-      alert('Settings saved! (In a live deployment, this would update your Firebase config.)');
-    }
-    function save() {
-      localStorage.setItem('adh_enquiries', JSON.stringify(adminData.enquiries));
-      localStorage.setItem('adh_gallery', JSON.stringify(adminData.gallery));
-      localStorage.setItem('adh_testimonials', JSON.stringify(adminData.customTestimonials));
-    }
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        closeModal();
+        closeConfirm();
+        closeSidebar();
+      }
+    });
 
     /* ── INIT ── */
-    document.addEventListener('DOMContentLoaded', () => {
+    function init() {
+      loadData();
+      updateClock(); setInterval(updateClock, 1000);
       renderDashboard();
+      updateBadges();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      checkSession();
+      document.getElementById('login-pass').addEventListener('keydown', e => {
+        if (e.key === 'Enter') attemptLogin();
+      });
     });
   </script>
 </body>
