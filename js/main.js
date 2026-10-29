@@ -579,3 +579,38 @@ window.refreshAllData = function () {
     renderServiceDetail();
   }
 };
+
+/* ── THEME TOGGLE LOGIC ── */
+function initTheme() {
+  const themeBtns = document.querySelectorAll('.theme-toggle-btn');
+
+  if (themeBtns.length === 0) return; // Agar page pe button nahi hai toh ruk jao
+
+  // Check karo agar user ne pehle light mode save kiya hai
+  if (localStorage.getItem('theme') === 'light') {
+    document.body.classList.add('light-mode');
+    themeBtns.forEach(btn => btn.innerHTML = '☀️');
+  }
+
+  // Click event lagao
+  themeBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault(); // Default behaviour roko
+      document.body.classList.toggle('light-mode');
+
+      if (document.body.classList.contains('light-mode')) {
+        localStorage.setItem('theme', 'light');
+        themeBtns.forEach(b => b.innerHTML = '☀️');
+      } else {
+        localStorage.setItem('theme', 'dark');
+        themeBtns.forEach(b => b.innerHTML = '🌙');
+      }
+    });
+  });
+}
+
+// Ise main 'DOMContentLoaded' ke andar call karo
+document.addEventListener('DOMContentLoaded', () => {
+  // ... aapka baaki code ...
+  initTheme(); // <--- Yeh line add karo
+});

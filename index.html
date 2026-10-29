@@ -93,8 +93,13 @@
         <a href="templates.html">Templates</a>
         <a href="contact.html">Contact</a>
       </div>
+      <button class="theme-toggle-btn" aria-label="Toggle Theme"
+        style="background:transparent; border:none; color:var(--white); font-size:1.4rem; cursor:pointer; margin-right:15px; display:inline-flex; align-items:center; position:relative; z-index:9999;">
+        🌙
+      </button>
       <a href="https://wa.me/919685325881?text=Hi! I need help with a digital service." target="_blank"
         class="btn btn-gold nav-cta">
+        
         <span>💬</span> WhatsApp Us
       </a>
       <button class="nav-toggle" aria-label="Menu">
@@ -110,17 +115,24 @@
     <a href="portfolio.html">Portfolio</a>
     <a href="templates.html">Templates</a>
     <a href="contact.html">Contact Us</a>
+    
     <a href="https://wa.me/919685325881" target="_blank" class="btn btn-whatsapp"
       style="width:100%;justify-content:center;margin-top:8px;">
       💬 WhatsApp: +91 9685325881
     </a>
   </div>
 
-  <!-- HERO -->
+  <!-- HERO (FIXED) -->
   <section class="hero">
     <div class="hero-bg"></div>
     <div class="hero-grid"></div>
-    <div class="hero-content">
+
+    <!-- Canvas Background -->
+    <canvas id="wedding-canvas"
+      style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;"></canvas>
+
+    <!-- Text Content (Z-index 2) -->
+    <div class="hero-content" style="position: relative; z-index: 2;">
       <div class="hero-text">
         <div class="hero-eyebrow">Jabalpur's Premium Digital Studio</div>
         <h1 class="hero-title">
@@ -151,38 +163,6 @@
           <div class="stat-item">
             <div class="stat-num"><span data-count="1" data-suffix=" yr">0</span></div>
             <div class="stat-label">In Business</div>
-          </div>
-        </div>
-      </div>
-      <div class="hero-visual">
-        <div class="hero-card-stack">
-          <div class="hero-card hero-card-1">
-            <div class="hero-card-inner">
-              <div class="card-chip">✦ Website Design</div>
-              <div class="card-title">Modern business websites that convert visitors</div>
-              <div class="card-lines">
-                <div class="card-line w-full"></div>
-                <div class="card-line w-3q"></div>
-                <div class="card-line w-half"></div>
-                <div class="card-line gold"></div>
-              </div>
-            </div>
-          </div>
-          <div class="hero-card hero-card-2">
-            <div class="hero-card-inner">
-              <div class="card-chip">💍 Invitation Video</div>
-              <div class="card-title">Cinematic wedding invites that wow</div>
-              <div class="card-lines">
-                <div class="card-line w-full"></div>
-                <div class="card-line w-3q"></div>
-                <div class="card-line gold"></div>
-              </div>
-            </div>
-          </div>
-          <div class="hero-badge">
-            <div class="hero-badge-icon">⚡</div>
-            <div class="hero-badge-num">24hr</div>
-            <div class="hero-badge-text">Delivery</div>
           </div>
         </div>
       </div>
@@ -397,7 +377,7 @@
     </div>
   </section>
 
-  <!-- CONTACT -->
+  <!-- CONTACT (FORM FIXED) -->
   <section class="section contact-section" id="contact">
     <div class="container">
       <div class="section-header fade-up">
@@ -453,85 +433,85 @@
               <p class="form-subtitle">Fill in the details below — we'll reach out on WhatsApp within 1 hour.</p>
             </div>
 
-            <form id="contact-form" action="https://formspree.io/f/mqpabljk" method="POST" novalidate></form>
+            <!-- FORM OPEN TAG FIXED -->
+            <form id="contact-form" action="https://formspree.io/f/mqpabljk" method="POST" novalidate>
 
-            <!-- Name -->
-            <div class="form-group floating">
-              <input type="text" name="name" id="f-name" class="form-input" placeholder=" " required>
-              <label for="f-name" class="floating-label">Your Name</label>
-              <span class="form-focus-line"></span>
-            </div>
+              <!-- Name -->
+              <div class="form-group floating">
+                <input type="text" name="name" id="f-name" class="form-input" placeholder=" " required>
+                <label for="f-name" class="floating-label">Your Name</label>
+                <span class="form-focus-line"></span>
+              </div>
 
-            <!-- Phone -->
-            <div class="form-group floating">
-              <input type="tel" name="phone" id="f-phone" class="form-input" placeholder=" " required>
-              <label for="f-phone" class="floating-label">Phone Number</label>
-              <span class="form-focus-line"></span>
-            </div>
+              <!-- Phone -->
+              <div class="form-group floating">
+                <input type="tel" name="phone" id="f-phone" class="form-input" placeholder=" " required>
+                <label for="f-phone" class="floating-label">Phone Number</label>
+                <span class="form-focus-line"></span>
+              </div>
 
-            <!-- Service (custom styled select) -->
-            <div class="form-group floating select-group">
-              <select name="service" id="f-service" class="form-select" required>
-                <option value="" disabled selected hidden></option>
-                <option>Website Design</option>
-                <option>Wedding Invitation Video</option>
-                <option>PAN Card Services</option>
-                <option>Passport Services</option>
-                <option>Samagra Services</option>
-                <option>Admission Form Filling</option>
-                <option>Scholarship Forms</option>
-                <option>Project Cover Page</option>
-                <option>Resume / CV Design</option>
-                <option>Certificate Design</option>
-                <option>Graphic Design</option>
-                <option>Business Branding</option>
-                <option>Online Form Filling</option>
-                <option>Other</option>
-              </select>
-              <label for="f-service" class="floating-label">Service Required</label>
-              <span class="select-arrow">▾</span>
-              <span class="form-focus-line"></span>
-            </div>
+              <!-- Service (custom styled select) -->
+              <div class="form-group floating select-group">
+                <select name="service" id="f-service" class="form-select" required>
+                  <option value="" disabled selected hidden></option>
+                  <option>Website Design</option>
+                  <option>Wedding Invitation Video</option>
+                  <option>PAN Card Services</option>
+                  <option>Passport Services</option>
+                  <option>Samagra Services</option>
+                  <option>Admission Form Filling</option>
+                  <option>Scholarship Forms</option>
+                  <option>Project Cover Page</option>
+                  <option>Resume / CV Design</option>
+                  <option>Certificate Design</option>
+                  <option>Graphic Design</option>
+                  <option>Business Branding</option>
+                  <option>Online Form Filling</option>
+                  <option>Other</option>
+                </select>
+                <label for="f-service" class="floating-label">Service Required</label>
+                <span class="select-arrow">▾</span>
+                <span class="form-focus-line"></span>
+              </div>
 
-            <!-- Message -->
-            <div class="form-group floating">
-              <textarea name="message" id="f-message" class="form-textarea" placeholder=" " rows="4"
-                required></textarea>
-              <label for="f-message" class="floating-label">Tell us about your project</label>
-              <span class="form-focus-line"></span>
-            </div>
+              <!-- Message -->
+              <div class="form-group floating">
+                <textarea name="message" id="f-message" class="form-textarea" placeholder=" " rows="4"
+                  required></textarea>
+                <label for="f-message" class="floating-label">Tell us about your project</label>
+                <span class="form-focus-line"></span>
+              </div>
 
-            <!-- Honeypot (spam protection — hidden from users) -->
-            <input type="text" name="_gotcha" style="display:none !important" tabindex="-1" autocomplete="off">
+              <!-- Honeypot (spam protection — hidden from users) -->
+              <input type="text" name="_gotcha" style="display:none !important" tabindex="-1" autocomplete="off">
 
-            <!-- Consent -->
-            <div class="form-consent">
-              <label class="consent-label">
-                <input type="checkbox" name="consent" required>
-                <span class="consent-box"></span>
-                <span class="consent-text">
-                  I have read the <a href="privacy.html" target="_blank">Privacy Policy</a> and consent to Azis
-                  Digital Hub
-                  contacting me about this enquiry.
-                </span>
-              </label>
-            </div>
+              <!-- Consent -->
+              <div class="form-consent">
+                <label class="consent-label">
+                  <input type="checkbox" name="consent" required>
+                  <span class="consent-box"></span>
+                  <span class="consent-text">
+                    I have read the <a href="privacy.html" target="_blank">Privacy Policy</a> and consent to Azis
+                    Digital Hub
+                    contacting me about this enquiry.
+                  </span>
+                </label>
+              </div>
 
-            <!-- Submit -->
-            <button type="submit" class="btn btn-gold btn-submit" id="submit-btn">
-              <span class="btn-text">Send Enquiry</span>
-              <span class="btn-loader"></span>
-              <span class="btn-check">✓</span>
-            </button>
+              <!-- Submit -->
+              <button type="submit" class="btn btn-gold btn-submit" id="submit-btn">
+                <span class="btn-text">Send Enquiry</span>
+                <span class="btn-loader"></span>
+                <span class="btn-check">✓</span>
+              </button>
 
-            <!-- Status message -->
-            <div class="form-status" id="form-status"></div>
+              <!-- Status message -->
+              <div class="form-status" id="form-status"></div>
 
             </form>
           </div>
         </div>
       </div>
-    </div>
     </div>
   </section>
 
@@ -624,7 +604,13 @@
   <script src="js/form.js"></script>
   <script src="js/firestore-data.js"></script>
 
+  <!-- 3D Libraries (Three.js and GSAP) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/ScrollTrigger.min.js"></script>
 
+  <!-- Aapki 3D Animation Script -->
+<script src="js/premium-digital-3d.js"></script>
 </body>
 
 </html>
